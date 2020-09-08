@@ -1,0 +1,77 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monsur Hossain</title>
+<style>
+body {
+  font-family: sans-serif;
+  font-weight: 200;
+  background-color: #F0F0F0;
+}
+a {
+  text-decoration: none;
+  color: #6599FF;
+}
+a:hover {
+  text-decoration: none;
+  color: #FF9900;
+}
+.content {
+  padding-top: 25px;
+  margin: auto;
+  width: 400px;
+}
+.profile {
+  border-radius: 50%;
+  height: 144px;
+  width: 144px;
+}
+.icon {
+  padding-right: 8px;
+  height: 24px;
+  width: 24px;
+}
+</style>
+</head>
+<body>
+<div class="content">
+<img src="images/profile.jpg" class="profile" alt="Profile Picture">
+<h1>Monsur Hossain</h1>
+<div>
+  <strong>current</strong> Staff Software Engineer @ Google<br />
+  <strong>previous</strong> Xanga / Amazon<br /><br />
+  <strong>author</strong> <a href="https://www.manning.com/books/cors-in-action">CORS in Action</a><br /><br />
+  <a href="https://twitter.com/monsur"><img src="images/twitter.bw.png" class="icon" id="twitter" alt="twitter"></a> 
+  <a href="https://github.com/monsur"><img src="images/github.bw.png" class="icon" id="github" alt="github"></a> 
+  <a href="https://www.linkedin.com/in/monsur"><img src="images/linkedin.bw.png" class="icon" id="linkedin" alt="linkedin"></a> 
+</div>
+</div>
+<script>
+var addIconHover = function(event, imgid, elem) {
+  elem.addEventListener(event, function(elem) {
+    return function() {
+      elem.src = 'images/' + elem.id + '.' + imgid + '.png';
+    };
+  }(icon));
+};
+
+var icons = document.getElementsByClassName('icon');
+for (var i = 0; i < icons.length; i++) {
+  var icon = icons[i];
+  addIconHover('mouseover', 'color', icon);
+  addIconHover('mouseout', 'bw', icon);
+}
+</script>
+<script>
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-25776021-1', 'auto');
+  ga('send', 'pageview');
+
+</script>
+</body>
