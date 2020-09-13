@@ -7,7 +7,7 @@ title: Welcome
 
 Hi, I'm Monsur!
 
-Software Enginner at Google.
+Software Engineer at Google.
 
 Previously: Amazon, Xanga
 
