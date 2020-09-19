@@ -13,7 +13,7 @@ Previously: Amazon, Xanga
 
 Author: [Cors in Action](https://www.manning.com/books/cors-in-action)
 
-I don't spend much time on social media, but you can sometimes find me here:
+You can sometimes find me here:
 * [Medium](https://medium.com/@monsur)
 * [Twitter](https://twitter.com/monsur)
 * [GitHub](https://github.com/monsur/)
