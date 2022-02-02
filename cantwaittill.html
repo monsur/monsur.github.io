@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+    <meta content="utf-8" http-equiv="encoding" />
+    <title>Can't Wait Till</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        padding: 0;
+        margin: 0;
+      }
+      .page {
+        height: 100vh;
+        width: 100%;
+        background-image: linear-gradient(#73fbfd, #5683f7, #6a4bf5, #8b2ef5);
+        font-family: "Space Grotesk", sans-serif;
+        color: #fff;
+      }
+      .content {
+        width: 600px;
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        -webkit-transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%);
+      }
+      .left-column {
+        float: left;
+        font-size: 14px;
+      }
+      .right-column {
+        float: right;
+      }
+      .cantwaittill-text {
+        font-size: 39px;
+        font-weight: 300;
+      }
+      .countdown {
+        font-size: 36px;
+        font-weight: 700;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <div class="content">
+        <div class="left-column">Annisa’s ear piercing is in:</div>
+        <div class="right-column">
+          <div class="cantwaittill-text">can't wait till</div>
+          <div class="countdown">
+            <span id="days">0</span>d :<span id="hours">00</span>h :<span
+              id="minutes"
+              >00</span
+            >m :<span id="seconds">00</span>s
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+  <script>
+    var endDate = new Date("February 4, 2022 14:45:00");
+
+    var dateDiff = function (fromDate, toDate) {
+      var delta = Math.abs(toDate - fromDate) / 1000;
+
+      var days = Math.floor(delta / 86400);
+      delta -= days * 86400;
+
+      var hours = Math.floor(delta / 3600) % 24;
+      delta -= hours * 3600;
+
+      var minutes = Math.floor(delta / 60) % 60;
+      delta -= minutes * 60;
+
+      var seconds = Math.floor(delta % 60);
+
+      return {
+        days: days,
+        hours: hours,
+        minutes: minutes,
+        seconds: seconds,
+      };
+    };
+
+    var updateNumber = function (id, value, padding) {
+      document.getElementById(id).innerHTML = value
+        .toString()
+        .padStart(padding, "0");
+    };
+
+    var displayDiff = function (diff) {
+      updateNumber("days", diff.days, 1);
+      updateNumber("hours", diff.hours, 2);
+      updateNumber("minutes", diff.minutes, 2);
+      updateNumber("seconds", diff.seconds, 2);
+    };
+
+    var updatePage = function () {
+      var diff = dateDiff(Date.now(), endDate);
+      displayDiff(diff);
+    };
+
+    setInterval(updatePage, 1000);
+  </script>
+</html>
