@@ -23,6 +23,7 @@
         color: #fff;
       }
       .content {
+        display: none;
         width: 740px;
         position: absolute;
         left: 50%;
@@ -50,7 +51,7 @@
   </head>
   <body>
     <div class="page">
-      <div class="content">
+      <div class="content" id="contentid">
         <div class="cantwaittill-text">can't wait till</div>
         <div class="countdown">
           <span id="days">0</span>d :<span id="hours">00</span>h :<span
@@ -64,6 +65,7 @@
   </body>
   <script>
     var endDate = new Date("February 4, 2022 14:45:00");
+    var visible = false;
 
     var dateDiff = function (fromDate, toDate) {
       var delta = Math.abs(toDate - fromDate) / 1000;
@@ -103,6 +105,10 @@
     var updatePage = function () {
       var diff = dateDiff(Date.now(), endDate);
       displayDiff(diff);
+      if (!visible) {
+        document.getElementById("contentid").style.display = "block";
+        visible = true;
+      }
     };
 
     setInterval(updatePage, 1000);
