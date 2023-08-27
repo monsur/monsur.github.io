@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Dishwasher Duty!</title>
+    <style>
+      .name { text-align: center; margin-top: 50px; }
+    </style>
+  </head>
+  <body>
+    <h1 class="name" id="name"></h1>
+  </body>
+  <script>
+    let startDate = new Date(2023, 7, 25);
+    let today = new Date();
+    let differenceInDays = Math.floor((today.getTime() - startDate.getTime())/86400000);
+    document.getElementById("name").innerHTML = differenceInDays % 2 == 0 ? "Annisa" : "Haroun";
+  </script>
+</html>
