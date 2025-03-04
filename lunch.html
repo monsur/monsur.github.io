@@ -1,0 +1,140 @@
+<html>
+<head>
+  <title>Haroun's Lunch</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href='https://fonts.googleapis.com/css?family=Roboto+Mono' rel='stylesheet' type='text/css'>
+  <style>
+  body {
+    font-family: 'Roboto Mono';
+    text-align: center;
+  }
+  button {
+    font-family: 'Roboto Mono';
+    padding: 20px;
+    font-size: 32px;
+    margin-top: 40px;
+    margin-bottom: 75px;
+  }
+  div {
+    font-size: 40px;
+  }
+  </style>
+</head>
+<body>
+  <button type="button" onclick="pickLunch(); return false;">Haroun's Lunch</button>
+  <div id="menu"></div>
+
+<script>
+var getRandomInt = function(min, max) {
+  if (arguments.length == 1) {
+    max = min;
+    min = 0;
+  }
+  return Math.floor(Math.random() * (max - min)) + min;
+};
+
+var getColId = function(x, y) {
+  return 'pos' + x + y;
+};
+
+var randomizeList = function(list) {
+  var randomList = list.slice(0);
+  var listLength = list.length;
+  for (var i = 0; i < listLength; i++) {
+    var randomi = getRandomInt(listLength);
+    if (randomi !== i) {
+      var tempInt = randomList[i]
+      randomList[i] = randomList[randomi];
+      randomList[randomi] = tempInt;
+    }
+  }
+  return randomList;
+}
+
+var pickItems = function(list, count) {
+  return randomizeList(list).slice(0, count || 1);
+};
+
+var pickLunch = function() {
+  var todaysSandwich = pickItems(sandwiches);
+  var todaysSnacks = pickItems(snacks, 2);
+  var todaysMenu = [todaysSandwich[0], todaysSnacks[0], todaysSnacks[1]];
+
+  for (var x = 0; x < ROWS; x++) {
+    for (var y = 0; y < COLS; y++) {
+      run(document.getElementById(getColId(x, y)),
+          todaysMenu[x][y],
+          TIMEOUTS[y].slice());
+    }
+  }
+};
+
+var run = function(elem, letter, timeouts) {
+  setTimeout(function() {
+    elem.innerHTML = alphabet[getRandomInt(alphabet.length)];
+    if (timeouts.length > 0) {
+      run(elem, letter, timeouts);
+    } else {
+      elem.innerHTML = letter;
+    }
+  }, timeouts.shift());
+};
+
+var generateTimeouts = function(intervals) {
+  var timeouts = [];
+  var i = 0;
+  for (i = 0; i < intervals; i++) {
+    timeouts[i] = getRandomInt(50, 150);
+  }
+  timeouts[i++] = getRandomInt(150, 250);
+  timeouts[i++] = getRandomInt(150, 250);
+  timeouts[i++] = getRandomInt(450, 550);
+  timeouts[i++] = getRandomInt(700, 800);
+  return timeouts;
+};
+
+var generateAllTimeouts = function() {
+  var timeouts = [];
+  timeouts[0] = generateTimeouts(5);
+  timeouts[1] = generateTimeouts(8);
+  timeouts[2] = generateTimeouts(11);
+  timeouts[3] = generateTimeouts(14);
+  timeouts[4] = generateTimeouts(17);
+  timeouts[5] = generateTimeouts(20);
+  timeouts[6] = generateTimeouts(23);
+  timeouts[7] = generateTimeouts(20);
+  timeouts[8] = generateTimeouts(17);
+  timeouts[9] = generateTimeouts(14);
+  timeouts[10] = generateTimeouts(11);
+  timeouts[11] = generateTimeouts(8);
+  timeouts[12] = generateTimeouts(5);
+  return timeouts;
+};
+
+var TIMEOUTS = generateAllTimeouts();
+
+var sandwiches = ['   turkey    ', 
+                  'peanut butter'];
+var snacks =     ['    apple    ',
+                  '   carrot    ',
+                  '  honeydew   '];
+
+var alphabet = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x',
+                'y', 'z'];
+
+var ROWS = 3;
+var COLS = 13;
+
+for (var x = 0; x < ROWS; x++) {
+  var row = document.createElement('div');
+  for (var y = 0; y < COLS; y++) {
+    var col = document.createElement('span');
+    col.id = getColId(x, y);
+    row.appendChild(col);
+  }
+  document.getElementById('menu').appendChild(row);
+}
+</script>
+</body>
+</html>
