@@ -9,7 +9,7 @@ platform: "Bluesky"
 layout: post
 ---
 
-I wanted to share a little side project I've been working on: https://www.plai-ball.com
+I wanted to share a little side project I've been working on: [https://www.plai-ball.com](https://www.plai-ball.com)
 
 Its been running for about a month, and I think I've worked out most of the issues.
 
@@ -32,4 +32,4 @@ This was a fun reminder that building things doesn’t have to be a heavy lift. 
 ---
 
 *Originally posted on [Bluesky](https://bsky.app/profile/monsur.hossa.in/post/3luqdhdmcqs22) by [@monsur.hossa.in](https://bsky.app/profile/monsur.hossa.in)*
-*Source: `at://monsur.hossa.in/app.bsky.feed.post/3luqdhdmcqs22`*
+*Source: [https://bsky.app/profile/monsur.hossa.in/post/3luqdhdmcqs22](https://bsky.app/profile/monsur.hossa.in/post/3luqdhdmcqs22)*

@@ -11,11 +11,11 @@ layout: post
 
 "We believe the future belongs to engineers who can seamlessly blend human creativity and judgment with AI capabilities. Proficiency with AI tools isn't just helpful for success in our interviews, it is essential for thriving in our day-to-day role at Canva."
 
-https://www.canva.dev/blog/engineering/yes-you-can-use-ai-in-our-interviews/
+[https://www.canva.dev/blog/engineering/yes-you-can-use-ai-in-our-interviews/](https://www.canva.dev/blog/engineering/yes-you-can-use-ai-in-our-interviews/)
 
 <!--more-->
 
 ---
 
 *Originally posted on [Bluesky](https://bsky.app/profile/monsur.hossa.in/post/3lrlwfcdlfs24) by [@monsur.hossa.in](https://bsky.app/profile/monsur.hossa.in)*
-*Source: `at://monsur.hossa.in/app.bsky.feed.post/3lrlwfcdlfs24`*
+*Source: [https://bsky.app/profile/monsur.hossa.in/post/3lrlwfcdlfs24](https://bsky.app/profile/monsur.hossa.in/post/3lrlwfcdlfs24)*

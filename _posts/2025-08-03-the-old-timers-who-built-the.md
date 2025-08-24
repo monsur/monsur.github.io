@@ -11,7 +11,7 @@ layout: post
 
 "The old timers who built the early web are coding with AI like it's 1995."
 
-https://www.linkedin.com/posts/christinawodtke_the-old-timers-who-built-the-early-web-are-activity-7356335847614402560-8nKx/
+[https://www.linkedin.com/posts/christinawodtke_the-old-timers-who-built-the-early-web-are-activity-7356335847614402560-8nKx/](https://www.linkedin.com/posts/christinawodtke_the-old-timers-who-built-the-early-web-are-activity-7356335847614402560-8nKx/)
 
 I couldn't agree more. There's an element of _play_ to AI that makes technology fun again!
 
@@ -24,4 +24,4 @@ The early web was just so freaking awesome for _anyone_ to play with! View sourc
 ---
 
 *Originally posted on [Bluesky](https://bsky.app/profile/monsur.hossa.in/post/3lviwtgyvok2u) by [@monsur.hossa.in](https://bsky.app/profile/monsur.hossa.in)*
-*Source: `at://monsur.hossa.in/app.bsky.feed.post/3lviwtgyvok2u`*
+*Source: [https://bsky.app/profile/monsur.hossa.in/post/3lviwtgyvok2u](https://bsky.app/profile/monsur.hossa.in/post/3lviwtgyvok2u)*
