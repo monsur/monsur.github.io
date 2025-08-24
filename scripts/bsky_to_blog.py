@@ -220,7 +220,7 @@ layout: post
     full_content = front_matter + "\n".join(content_parts)
     
     # Add source attribution at the end
-    full_content += f"\n\n---\n\n*Originally posted on [Bluesky]({original_url}) by [@{handle}](https://bsky.app/profile/{handle})*\n*Source: `{at_uri}`*\n"
+    full_content += f"\n\n<!--more-->\n\n---\n\n*Originally posted on [Bluesky]({original_url}) by [@{handle}](https://bsky.app/profile/{handle})*\n*Source: `{at_uri}`*\n"
     
     return full_content
 
