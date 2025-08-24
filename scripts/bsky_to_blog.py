@@ -96,6 +96,7 @@ def reconstruct_text_with_links(text, facets):
 def extract_posts_from_thread(thread_data):
     """Extract and order posts from thread data"""
     posts = []
+    original_author_handle = None
     
     def process_post(post_item):
         """Process a single post item"""
@@ -128,10 +129,18 @@ def extract_posts_from_thread(thread_data):
     
     def collect_posts(thread_item):
         """Recursively collect posts from thread structure"""
+        nonlocal original_author_handle
+        
         # Process current post
         post_data = process_post(thread_item)
         if post_data:
-            posts.append(post_data)
+            # Set original author handle from the first post
+            if original_author_handle is None:
+                original_author_handle = post_data['handle']
+            
+            # Only include posts from the original author
+            if post_data['handle'] == original_author_handle:
+                posts.append(post_data)
         
         # Process replies
         replies = thread_item.get('replies', [])
@@ -147,7 +156,13 @@ def extract_posts_from_thread(thread_data):
     while current:
         parent_data = process_post(current)
         if parent_data:
-            parent_posts.insert(0, parent_data)  # Insert at beginning for correct order
+            # Set original author handle from the first parent post we find
+            if original_author_handle is None:
+                original_author_handle = parent_data['handle']
+            
+            # Only include parent posts from the original author
+            if parent_data['handle'] == original_author_handle:
+                parent_posts.insert(0, parent_data)  # Insert at beginning for correct order
         current = current.get('parent')
     
     # Add parent posts to main list
