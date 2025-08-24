@@ -22,4 +22,4 @@ Potential fixes include introducing repetition in the transcript to reinforce ke
 ---
 
 *Originally posted on [Bluesky](https://bsky.app/profile/monsur.hossa.in/post/3lwxluardc22k) by [@monsur.hossa.in](https://bsky.app/profile/monsur.hossa.in)*
-*Source: `at://monsur.hossa.in/app.bsky.feed.post/3lwxluardc22k`*
+*Source: [https://bsky.app/profile/monsur.hossa.in/post/3lwxluardc22k](https://bsky.app/profile/monsur.hossa.in/post/3lwxluardc22k)*
