@@ -159,6 +159,24 @@ def extract_posts_from_thread(thread_data):
     return posts
 
 
+def format_urls_as_markdown(text):
+    """Convert standalone URLs in text to markdown format"""
+    # Pattern to match URLs that aren't already in markdown link format
+    # Negative lookbehind to avoid matching URLs already in [text](url) format
+    url_pattern = r'(?<!\]\()\b(https?://[^\s\)]+)'
+    
+    def replace_url(match):
+        url = match.group(1)
+        # Remove trailing punctuation that's likely not part of the URL
+        trailing_punct = ''
+        while url and url[-1] in '.,!?;:':
+            trailing_punct = url[-1] + trailing_punct
+            url = url[:-1]
+        return f'[{url}]({url}){trailing_punct}'
+    
+    return re.sub(url_pattern, replace_url, text)
+
+
 def merge_posts_to_markdown(posts, original_url, at_uri, custom_title=None):
     """Merge posts into a single markdown blog post"""
     if not posts:
@@ -209,6 +227,9 @@ layout: post
     for i, post in enumerate(posts):
         text = post['text'].strip()
         if text:
+            # Format URLs as markdown links
+            text = format_urls_as_markdown(text)
+            
             if i == 0:
                 # First post - no special formatting
                 content_parts.append(text)
