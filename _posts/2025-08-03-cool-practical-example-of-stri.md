@@ -1,5 +1,5 @@
 ---
-title: "Cool practical example of stringing together diffe"
+title: "An AI Shopping Assistant with Gradio"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-08-03 15:42:58 +0000

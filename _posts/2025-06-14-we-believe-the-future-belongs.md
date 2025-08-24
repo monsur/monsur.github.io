@@ -1,5 +1,5 @@
 ---
-title: "We believe the future belongs to engineers who ca"
+title: "AI in Canva's interview process"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-06-14 21:45:57 +0000

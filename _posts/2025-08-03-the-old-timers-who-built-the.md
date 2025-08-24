@@ -1,5 +1,5 @@
 ---
-title: "The old timers who built the early web are coding"
+title: "The old timers who built the early web are coding with AI like it's 1995."
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-08-03 14:56:39 +0000

@@ -1,5 +1,5 @@
 ---
-title: "I used Gemini CLI to update a GitHub project I hav"
+title: "Updating a 14 year old GitHub project"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-07-24 04:00:29 +0000

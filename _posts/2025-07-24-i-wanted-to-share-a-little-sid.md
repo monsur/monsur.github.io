@@ -1,5 +1,5 @@
 ---
-title: "I wanted to share a little side project Ive been"
+title: "plAI ball!"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-07-24 20:05:58 +0000

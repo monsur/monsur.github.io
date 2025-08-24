@@ -1,5 +1,5 @@
 ---
-title: "One new insight after building plai-ball.com"
+title: "AI is still about the end user"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-08-22 04:15:23 +0000

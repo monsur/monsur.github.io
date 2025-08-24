@@ -1,5 +1,5 @@
 ---
-title: "Keeping up with innovation in the AI space can fee"
+title: "How do you learn?"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-08-22 20:37:20 +0000
