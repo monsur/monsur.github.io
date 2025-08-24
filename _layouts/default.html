@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+<head>
+<title>{% if page.title %}{{ page.title }} - {% endif %}Monsur Hossain</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 50px;
+  }
+  .profile {
+    height: 144px;
+    width: 144px;
+    border-radius: 20px;
+  }
+  .icons img {
+    border: 0px;
+    width: 30px;
+    height: 30px;
+    margin: 10px;
+  }
+  .post-preview {
+    margin-bottom: 2em;
+    padding-bottom: 1em;
+    border-bottom: 1px solid #eee;
+  }
+  .post-meta {
+    color: #666;
+    font-size: 0.9em;
+  }
+</style>
+</head>
+<body>
+{{ content }}
+</body>
+</html>
