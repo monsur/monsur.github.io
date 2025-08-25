@@ -15,11 +15,7 @@ Do you prefer to read, listen to podcasts, watch videos? Do you like diving into
 
 There isn’t one right answer, and your answer may change over time.
 
-Things I’ve learned about myself: I am an avid reader, but when it comes to technical topics, I prefer visuals that convey how pieces fit together.
-
-I’m a hands-on learner, I like building.
-
-I’ll sometimes walk through an example from [https://simonwillison.net](https://simonwillison.net) to get a “feel” for how it works.
+Things I’ve learned about myself: I am an avid reader, but when it comes to technical topics, I prefer visuals that convey how pieces fit together. I’m a hands-on learner, I like building. I’ll sometimes walk through an example from [https://simonwillison.net](https://simonwillison.net) to get a “feel” for how it works.
 
 AI is _great_ for supporting this style of learning. AI chats lend themselves well to the Socratic method, where I can ask questions and explore a topic from different perspectives, rather than rely only on the text in front of me.
 
