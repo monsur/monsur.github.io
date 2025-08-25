@@ -21,7 +21,7 @@ While the script could automatically run when there's a new post, I'm running it
 
 Claude used the public BlueSky API, no authentication required. I assumed I'd have to authenticate given how locked-down APIs tend to be these days. Yay for open APIs!
 
-Claude also had a clever solution for ensuring all the posts are mine. I would have just hardcoded my username directly in the script. Claude saves the username of the first post, and then ensures the user is the same for subsequent posts. This is a much more scalable approach!
+Claude also had a [clever solution](https://github.com/monsur/monsur.github.io/commit/27c4341fcf321078bea4c208b6d832d546ee1aa8) for ensuring all the posts are mine. I would have just hardcoded my username directly in the script. Claude saves the username of the first post, and then ensures the user is the same for subsequent posts. This is a much more scalable approach!
 
 <!--more-->
 
