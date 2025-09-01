@@ -1,5 +1,5 @@
 ---
-title: "A weakness in OpenAIs Connectors allowed sensiti"
+title: "Prompt injection and early 2000s blogging"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-09-01 06:08:04 +0000
