@@ -3,6 +3,8 @@
 Bluesky Thread to Blog Post Converter
 
 Fetches a threaded Bluesky post from a URL and converts it to a Jekyll-compatible markdown file.
+
+Example usage: python scripts/bsky_to_blog.py -d _posts https://bsky.app/profile/monsur.hossa.in/post/3lx6nsaottk2n
 """
 
 import requests
@@ -18,10 +20,10 @@ def extract_uri_from_url(bsky_url):
     # Example URL: https://bsky.app/profile/monsur.hossa.in/post/3lwzcq42rdc22
     pattern = r"https://bsky\.app/profile/([^/]+)/post/([^/]+)"
     match = re.match(pattern, bsky_url)
-    
+
     if not match:
         raise ValueError(f"Invalid Bluesky URL format: {bsky_url}\nExpected format: https://bsky.app/profile/handle/post/postid")
-    
+
     handle, post_id = match.groups()
     # Convert to AT-URI format
     at_uri = f"at://{handle}/app.bsky.feed.post/{post_id}"
@@ -45,7 +47,7 @@ def fetch_thread(post_uri):
         'depth': 1000,  # Get full thread depth
         'parentHeight': 1000  # Get full parent chain
     }
-    
+
     try:
         response = requests.get(api_url, params=params)
         response.raise_for_status()
@@ -65,22 +67,22 @@ def reconstruct_text_with_links(text, facets):
     """Reconstruct text with full URLs from facets data"""
     if not facets:
         return text
-    
+
     # Convert text to bytes for accurate positioning
     text_bytes = text.encode('utf-8')
-    
+
     # Sort facets by byte start position in reverse order to avoid offset issues
     sorted_facets = sorted(facets, key=lambda f: f.get('index', {}).get('byteStart', 0), reverse=True)
-    
+
     for facet in sorted_facets:
         features = facet.get('features', [])
         index = facet.get('index', {})
         byte_start = index.get('byteStart')
         byte_end = index.get('byteEnd')
-        
+
         if byte_start is None or byte_end is None:
             continue
-            
+
         for feature in features:
             if feature.get('$type') == 'app.bsky.richtext.facet#link':
                 full_url = feature.get('uri', '')
@@ -88,7 +90,7 @@ def reconstruct_text_with_links(text, facets):
                     # Replace the truncated text with the full URL using byte positions
                     text_bytes = text_bytes[:byte_start] + full_url.encode('utf-8') + text_bytes[byte_end:]
                     break
-    
+
     # Convert back to string
     return text_bytes.decode('utf-8')
 
@@ -97,25 +99,25 @@ def extract_posts_from_thread(thread_data):
     """Extract and order posts from thread data"""
     posts = []
     original_author_handle = None
-    
+
     def process_post(post_item):
         """Process a single post item"""
         if post_item.get('$type') == 'app.bsky.feed.defs#threadViewPost':
             post = post_item.get('post', {})
             record = post.get('record', {})
             author = post.get('author', {})
-            
+
             # Get the original text
             text = record.get('text', '')
             facets = record.get('facets', [])
-            
+
             # Reconstruct text with full URLs from facets
             if facets:
                 text = reconstruct_text_with_links(text, facets)
-            
+
             # Remove thread markers like "1/ ", "2/ " etc.
             text = remove_thread_markers(text)
-            
+
             post_data = {
                 'text': text,
                 'created_at': record.get('createdAt', ''),
@@ -126,30 +128,30 @@ def extract_posts_from_thread(thread_data):
             }
             return post_data
         return None
-    
+
     def collect_posts(thread_item):
         """Recursively collect posts from thread structure"""
         nonlocal original_author_handle
-        
+
         # Process current post
         post_data = process_post(thread_item)
         if post_data:
             # Set original author handle from the first post
             if original_author_handle is None:
                 original_author_handle = post_data['handle']
-            
+
             # Only include posts from the original author
             if post_data['handle'] == original_author_handle:
                 posts.append(post_data)
-        
+
         # Process replies
         replies = thread_item.get('replies', [])
         for reply in replies:
             collect_posts(reply)
-    
+
     # Start with the main thread
     thread = thread_data.get('thread', {})
-    
+
     # Collect parent posts first
     parent_posts = []
     current = thread.get('parent')
@@ -159,18 +161,18 @@ def extract_posts_from_thread(thread_data):
             # Set original author handle from the first parent post we find
             if original_author_handle is None:
                 original_author_handle = parent_data['handle']
-            
+
             # Only include parent posts from the original author
             if parent_data['handle'] == original_author_handle:
                 parent_posts.insert(0, parent_data)  # Insert at beginning for correct order
         current = current.get('parent')
-    
+
     # Add parent posts to main list
     posts.extend(parent_posts)
-    
+
     # Collect main thread posts
     collect_posts(thread)
-    
+
     return posts
 
 
@@ -179,7 +181,7 @@ def format_urls_as_markdown(text):
     # Pattern to match URLs that aren't already in markdown link format
     # Negative lookbehind to avoid matching URLs already in [text](url) format
     url_pattern = r'(?<!\]\()\b(https?://[^\s\)]+)'
-    
+
     def replace_url(match):
         url = match.group(1)
         # Remove trailing punctuation that's likely not part of the URL
@@ -188,7 +190,7 @@ def format_urls_as_markdown(text):
             trailing_punct = url[-1] + trailing_punct
             url = url[:-1]
         return f'[{url}]({url}){trailing_punct}'
-    
+
     return re.sub(url_pattern, replace_url, text)
 
 
@@ -196,13 +198,13 @@ def merge_posts_to_markdown(posts, original_url, at_uri, custom_title=None):
     """Merge posts into a single markdown blog post"""
     if not posts:
         return ""
-    
+
     # Get metadata from first post
     first_post = posts[0]
     author = first_post['author']
     handle = first_post['handle']
     created_at = first_post['created_at']
-    
+
     # Parse date for Jekyll front matter
     try:
         post_date = datetime.fromisoformat(created_at.replace('Z', '+00:00'))
@@ -211,7 +213,7 @@ def merge_posts_to_markdown(posts, original_url, at_uri, custom_title=None):
     except:
         date_str = datetime.now().strftime('%Y-%m-%d')
         datetime_str = datetime.now().strftime('%Y-%m-%d %H:%M:%S %z')
-    
+
     # Use custom title if provided, otherwise generate from first post
     if custom_title:
         title_text = custom_title
@@ -221,7 +223,7 @@ def merge_posts_to_markdown(posts, original_url, at_uri, custom_title=None):
         title_text = re.sub(r'[^\w\s-]', '', title_text).strip()
         if not title_text:
             title_text = f"Bluesky Thread by {author}"
-    
+
     # Jekyll front matter
     front_matter = f"""---
 title: "{title_text}"
@@ -235,29 +237,29 @@ layout: post
 ---
 
 """
-    
+
     # Merge post content
     content_parts = []
-    
+
     for i, post in enumerate(posts):
         text = post['text'].strip()
         if text:
             # Format URLs as markdown links
             text = format_urls_as_markdown(text)
-            
+
             if i == 0:
                 # First post - no special formatting
                 content_parts.append(text)
             else:
                 # Subsequent posts - add some separation
                 content_parts.append(f"\n{text}")
-    
+
     # Combine everything
     full_content = front_matter + "\n".join(content_parts)
-    
+
     # Add source attribution at the end
     full_content += f"\n\n<!--more-->\n\n---\n\n*Originally posted on [Bluesky]({original_url}) by [@{handle}](https://bsky.app/profile/{handle})*\n*Source: [{original_url}]({original_url})*\n"
-    
+
     return full_content
 
 
@@ -271,13 +273,13 @@ def generate_filename(posts, date_str, custom_title=None):
         slug_text = posts[0]['text'][:30].strip()
     else:
         return f"{date_str}-bluesky-post.md"
-    
+
     slug = re.sub(r'[^\w\s-]', '', slug_text).strip()
     slug = re.sub(r'\s+', '-', slug).lower()
-    
+
     if not slug:
         slug = "bluesky-thread"
-    
+
     return f"{date_str}-{slug}.md"
 
 
@@ -287,32 +289,32 @@ def main():
     parser.add_argument('-o', '--output', help='Output filename (optional)')
     parser.add_argument('-d', '--output-dir', default='.', help='Output directory (default: current directory)')
     parser.add_argument('--title', help='Custom title for the blog post (optional)')
-    
+
     args = parser.parse_args()
-    
+
     try:
         # Extract AT-URI from URL
         post_uri = extract_uri_from_url(args.url)
         print(f"Extracted AT-URI: {post_uri}")
-        
+
         # Validate the extracted AT-URI
         validate_at_uri(post_uri)
-        
+
         # Fetch thread data
         print("Fetching thread data...")
         thread_data = fetch_thread(post_uri)
-        
+
         # Extract posts
         posts = extract_posts_from_thread(thread_data)
         print(f"Found {len(posts)} posts in thread")
-        
+
         if not posts:
             print("No posts found in thread")
             return
-        
+
         # Generate markdown content
         markdown_content = merge_posts_to_markdown(posts, args.url, post_uri, args.title)
-        
+
         # Generate filename
         if args.output:
             filename = args.output
@@ -322,26 +324,26 @@ def main():
                 date_str = post_date.strftime('%Y-%m-%d')
             except:
                 date_str = datetime.now().strftime('%Y-%m-%d')
-            
+
             filename = generate_filename(posts, date_str, args.title)
-        
+
         # Ensure output directory exists
         output_path = os.path.join(args.output_dir, filename)
         os.makedirs(args.output_dir, exist_ok=True)
-        
+
         # Write markdown file
         with open(output_path, 'w', encoding='utf-8') as f:
             f.write(markdown_content)
-        
+
         print(f"Blog post written to: {output_path}")
         print(f"Title: {posts[0]['text'][:50]}...")
         print(f"Author: {posts[0]['author']} (@{posts[0]['handle']})")
         print(f"Posts in thread: {len(posts)}")
-        
+
     except Exception as e:
         print(f"Error: {e}")
         return 1
-    
+
     return 0
 
 
