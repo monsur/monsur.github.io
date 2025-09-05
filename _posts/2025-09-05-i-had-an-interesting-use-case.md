@@ -1,5 +1,5 @@
 ---
-title: "I had an interesting use case where vibecoding jus"
+title: "Vibedebugging"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-09-05 04:27:42 +0000
