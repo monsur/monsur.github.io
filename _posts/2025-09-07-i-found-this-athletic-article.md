@@ -1,5 +1,5 @@
 ---
-title: "I found this Athletic article on NFL quarterbacks"
+title: "Leadership lessons from developing new QBs"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-09-07 18:21:35 +0000
