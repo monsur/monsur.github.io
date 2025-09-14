@@ -20,7 +20,7 @@ title: Blog
 ' | first | strip_html %}
           {% endif %}
           <p>{{ first_paragraph }}</p>
-          <p class="read-more"><a href="{{ post.url | relative_url }}">read more...</a></p>
+          <p class="read-more"><a href="{{ post.url | relative_url }}">read more &rarr;</a></p>
         </div>
       </div>
     {% endfor %}
