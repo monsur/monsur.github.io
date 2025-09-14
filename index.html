@@ -6,7 +6,7 @@ title: Blog
 <div class="home">
 
   <div class="post-list">
-    {% for post in site.posts %}
+    {% for post in paginator.posts %}
       <div class="post-preview">
         <h2 class="post-title">
           <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
@@ -25,4 +25,19 @@ title: Blog
       </div>
     {% endfor %}
   </div>
+
+  <!-- Pagination links -->
+  {% if paginator.total_pages > 1 %}
+  <div class="pagination">
+    {% if paginator.previous_page %}
+      <a href="{{ paginator.previous_page_path | relative_url }}" class="prev">&larr; Newer Posts</a>
+    {% endif %}
+
+    <span class="page-number">Page {{ paginator.page }} of {{ paginator.total_pages }}</span>
+
+    {% if paginator.next_page %}
+      <a href="{{ paginator.next_page_path | relative_url }}" class="next">Older Posts &rarr;</a>
+    {% endif %}
+  </div>
+  {% endif %}
 </div>
