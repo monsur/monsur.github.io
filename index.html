@@ -12,7 +12,16 @@ title: Blog
           <a href="{{ post.url | relative_url }}">{{ post.title | escape }}</a>
         </h2>
         <p class="post-meta">{{ post.date | date: "%b %-d, %Y" }}</p>
-        <div class="post-excerpt">{{ post.excerpt }}</div>
+        <div class="post-excerpt">
+          {% assign first_paragraph = post.content | split: '<p>' | slice: 1 | first | split: '</p>' | first %}
+          {% if first_paragraph == blank %}
+            {% assign first_paragraph = post.content | split: '
+
+' | first | strip_html %}
+          {% endif %}
+          <p>{{ first_paragraph | strip_html | truncatewords: 50 }}</p>
+          <p class="read-more"><a href="{{ post.url | relative_url }}">read more...</a></p>
+        </div>
       </div>
     {% endfor %}
   </div>
