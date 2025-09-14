@@ -19,7 +19,7 @@ title: Blog
 
 ' | first | strip_html %}
           {% endif %}
-          <p>{{ first_paragraph | strip_html | truncatewords: 50 }}</p>
+          <p>{{ first_paragraph }}</p>
           <p class="read-more"><a href="{{ post.url | relative_url }}">read more...</a></p>
         </div>
       </div>
