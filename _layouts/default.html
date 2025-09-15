@@ -326,7 +326,7 @@
 
 <body>
   <div class="header-image">
-    <img src="{{ "/images/headers/header01.jpg" | relative_url }}" alt="Header">
+    <img id="header-img" src="{{ "/images/headers/header01.jpg" | relative_url }}" alt="Header">
   </div>
 
   <header class="site-header">
@@ -350,5 +350,25 @@
     <div class="wrapper">
     </div>
   </footer>
+
+  <script>
+    (function() {
+      // Number of header images available (update this when you add more images)
+      // Image size = 800 x 150
+      const totalHeaders = 1;
+
+      // Generate random number between 1 and totalHeaders
+      const randomHeader = Math.floor(Math.random() * totalHeaders) + 1;
+
+      // Format number with leading zero if needed (01, 02, etc.)
+      const headerNumber = randomHeader.toString().padStart(2, '0');
+
+      // Update the header image source
+      const headerImg = document.getElementById('header-img');
+      if (headerImg) {
+        headerImg.src = '{{ "/images/headers/" | relative_url }}header' + headerNumber + '.jpg';
+      }
+    })();
+  </script>
 </body>
 </html>
