@@ -354,14 +354,14 @@
   <script>
     (function() {
       // Number of header images available (update this when you add more images)
-      // Image size = 800 x 150
-      const totalHeaders = 3;
+      // Image size = 800 x 200
+      const totalHeaders = 14;
 
       // Generate random number between 1 and totalHeaders
       const randomHeader = Math.floor(Math.random() * totalHeaders) + 1;
 
-      // Format number with leading zero if needed (01, 02, etc.)
-      const headerNumber = randomHeader.toString().padStart(2, '0');
+      // Format number with leading zero if needed (001, 002, etc.)
+      const headerNumber = randomHeader.toString().padStart(3, '0');
 
       // Update the header image source
       const headerImg = document.getElementById('header-img');
