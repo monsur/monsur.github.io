@@ -1,5 +1,5 @@
 ---
-title: "Claude Code released an update and one of the new"
+title: "Claude Code & Checkpoints"
 author: "Monsur"
 author_handle: "monsur.hossa.in"
 date: 2025-10-05 13:13:29 +0000
