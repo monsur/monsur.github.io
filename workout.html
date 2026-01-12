@@ -110,21 +110,6 @@
 
 <script>
     const trainingData = {
-        "Friday": [
-            ["Bench Press"],
-            ["Barbell Row", "One-Arm Dumbbell Row"],
-            ["Lat Pulldowns"],
-            ["Cable Flys", "Dumbbell Flys", "Pec Deck"],
-            ["Standing Dumbbell ITWY Raises", "Incline Dumbbell ITWY Raises", "Scapular Plane Raises", "Prone Y-Extensions"],
-            ["Easy Run: 25-35 min conversational pace"]
-        ],
-        "Saturday": [
-            ["Barbell Squat", "Goblet Squat"],
-            ["Barbell Romanian Deadlift"],
-            ["Dumbbell Split Squat"],
-            ["Leg Press Calf Raises"],
-            ["Farmer's Walk"]
-        ],
         "Sunday": [
             ["Low Incline Dumbbell Press", "Incline Machine Chest Press"],
             ["Arnold Press", "Single-Arm Overhead Press"],
@@ -142,7 +127,22 @@
         ],
         "Tuesday": [["Peloton bike or outdoor jog 30–45 min easy"]],
         "Wednesday": [["Rest Day - Full recovery"]],
-        "Thursday": [["Peloton bike or 40–60 min slow steady run or jog/walk"]]
+        "Thursday": [["Peloton bike or 40–60 min slow steady run or jog/walk"]],
+        "Friday": [
+            ["Bench Press"],
+            ["Barbell Row", "One-Arm Dumbbell Row"],
+            ["Lat Pulldowns"],
+            ["Cable Flys", "Dumbbell Flys", "Pec Deck"],
+            ["Standing Dumbbell ITWY Raises", "Incline Dumbbell ITWY Raises", "Scapular Plane Raises", "Prone Y-Extensions"],
+            ["Easy Run: 25-35 min conversational pace"]
+        ],
+        "Saturday": [
+            ["Barbell Squat", "Goblet Squat"],
+            ["Barbell Romanian Deadlift"],
+            ["Dumbbell Split Squat"],
+            ["Leg Press Calf Raises"],
+            ["Farmer's Walk"]
+        ]
     };
 
     function generateWorkout() {
@@ -163,8 +163,7 @@
     }
 
     // Set default day based on actual day of week
-    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-    const today = days[new Date().getDay()];
+    const today = Object.keys(trainingData)[new Date().getDay()];
     document.getElementById('daySelect').value = today;
 
     // Run on load
