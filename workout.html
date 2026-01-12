@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daily Trainer</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+        body {
+            font-family: -apple-system, system-ui, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            display: flex;
+            justify-content: center;
+            padding: 20px;
+            margin: 0;
+        }
+        .container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card);
+            padding: 2rem;
+            border-radius: 16px;
+            shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+        }
+        h1 { margin-top: 0; font-size: 1.5rem; text-align: center; color: var(--primary); }
+        .selector-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.9rem; }
+        select {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #cbd5e1;
+            font-size: 1rem;
+            background: white;
+        }
+        .workout-display {
+            border-top: 2px solid #f1f5f9;
+            margin-top: 1rem;
+            padding-top: 1rem;
+        }
+        .day-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; color: #334155; }
+        ul { list-style: none; padding: 0; }
+        li {
+            padding: 10px;
+            background: #f1f5f9;
+            margin-bottom: 8px;
+            border-radius: 6px;
+            font-size: 0.95rem;
+            display: flex;
+            align-items: center;
+        }
+        li::before { content: "•"; color: var(--primary); font-weight: bold; margin-right: 10px; }
+        .habit-section {
+            margin-top: 1.5rem;
+            padding: 10px;
+            background: #eff6ff;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            color: #1e40af;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background-color: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: opacity 0.2s;
+        }
+        button:active { opacity: 0.8; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>Today's Routine</h1>
+    
+    <div class="selector-group">
+        <label for="daySelect">Select Training Day:</label>
+        <select id="daySelect" onchange="generateWorkout()">
+            <option value="Friday">Friday – Upper + Easy Run</option>
+            <option value="Saturday">Saturday – Legs</option>
+            <option value="Sunday">Sunday – Push + Speed Run</option>
+            <option value="Monday">Monday – Pull</option>
+            <option value="Tuesday">Tuesday – Easy Cardio</option>
+            <option value="Wednesday">Wednesday – Rest</option>
+            <option value="Thursday">Thursday – Long Run</option>
+        </select>
+    </div>
+
+    <div class="workout-display" id="workoutContent">
+        </div>
+
+    <div class="habit-section">
+        <strong>Daily Habits:</strong> Core exercises & full-body stretching.
+    </div>
+
+    <button onclick="generateWorkout()">Randomize Alternates</button>
+</div>
+
+<script>
+    const trainingData = {
+        "Friday": [
+            "Bench press",
+            "Barbell row / One-Arm Dumbbell Row",
+            "Lat pulldowns",
+            "Cable flys / Dumbbell flys / Pec Deck",
+            "Dumbbell ITWY Raises (standing or incline)",
+            "Easy run: 25–35 min conversational pace"
+        ],
+        "Saturday": [
+            "Barbell squat / Goblet Squat",
+            "Barbell Romanian deadlift",
+            "Dumbbell split squat",
+            "Leg press calf raises",
+            "Farmer’s walk"
+        ],
+        "Sunday": [
+            "Low incline dumbbell press / Incline machine chest press",
+            "Arnold press / Single-Arm Overhead Press",
+            "Cable flys / Dumbbell flys / Pec Deck",
+            "Cable pushdowns / Overhead Dumbbell Extension",
+            "Face pulls / cable external rotations",
+            "Speed run: 5×3 min hard / 2 min easy jog"
+        ],
+        "Monday": [
+            "Inverted row",
+            "Lat pulldowns",
+            "Seated dumbbell curls / hammer curl / dumbbell reverse curls",
+            "Dumbbell reverse flys",
+            "Dead hangs"
+        ],
+        "Tuesday": ["Peloton bike or outdoor jog 30–45 min easy"],
+        "Wednesday": ["Rest Day - Full recovery"],
+        "Thursday": ["Peloton bike or 40–60 min slow steady run or jog/walk"]
+    };
+
+    function generateWorkout() {
+        const day = document.getElementById('daySelect').value;
+        const exercises = trainingData[day];
+        const display = document.getElementById('workoutContent');
+        
+        let html = `<div class="day-title">${day} Routine</div><ul>`;
+        
+        exercises.forEach(item => {
+            // Split by "/" and pick one at random
+            const options = item.split(' / ');
+            const choice = options[Math.floor(Math.random() * options.length)];
+            html += `<li>${choice.trim()}</li>`;
+        });
+        
+        html += `</ul>`;
+        display.innerHTML = html;
+    }
+
+    // Set default day based on actual day of week
+    const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+    const today = days[new Date().getDay()];
+    document.getElementById('daySelect').value = today;
+
+    // Run on load
+    generateWorkout();
+</script>
+
+</body>
+</html>
