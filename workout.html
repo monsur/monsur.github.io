@@ -45,7 +45,28 @@
             margin-top: 1rem;
             padding-top: 1rem;
         }
-        .day-title { font-weight: bold; font-size: 1.2rem; margin-bottom: 1rem; color: #334155; }
+        .day-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .randomize-icon {
+            font-size: 1.3rem;
+            color: #94a3b8;
+            cursor: pointer;
+            user-select: none;
+            transition: color 0.2s;
+        }
+        .randomize-icon:hover {
+            color: #64748b;
+        }
+        .randomize-icon:active {
+            color: var(--primary);
+        }
         ul { list-style: none; padding: 0; }
         li {
             padding: 10px;
@@ -90,19 +111,6 @@
             font-size: 0.85rem;
             color: #1e40af;
         }
-        button {
-            width: 100%;
-            padding: 14px;
-            background-color: var(--primary);
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 1rem;
-            transition: opacity 0.2s;
-        }
-        button:active { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -129,8 +137,6 @@
     <div class="habit-section">
         <strong>Daily Habits:</strong> Core exercises & full-body stretching.
     </div>
-
-    <button onclick="generateWorkout()">Randomize Alternates</button>
 </div>
 
 <script>
@@ -218,7 +224,10 @@
         // Close any open input boxes
         expandedExercise = null;
 
-        let html = `<div class="day-title">${day} Routine</div><ul>`;
+        let html = `<div class="day-title">
+            <span>${day} Routine</span>
+            <span class="randomize-icon" onclick="generateWorkout()" title="Randomize alternate exercises">⟳</span>
+        </div><ul>`;
 
         exercises.forEach((exerciseOptions, index) => {
             // Each exerciseOptions is already an array, pick one at random
