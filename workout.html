@@ -55,8 +55,33 @@
             font-size: 0.95rem;
             display: flex;
             align-items: center;
+            cursor: pointer;
+            flex-wrap: wrap;
         }
         li::before { content: "•"; color: var(--primary); font-weight: bold; margin-right: 10px; }
+        .exercise-name {
+            flex: 1;
+        }
+        .exercise-note {
+            font-size: 0.8rem;
+            font-style: italic;
+            color: #64748b;
+            margin-left: auto;
+            padding-left: 10px;
+        }
+        .note-input {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            font-family: inherit;
+        }
+        .note-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
         .habit-section {
             margin-top: 1.5rem;
             padding: 10px;
@@ -145,22 +170,141 @@
         ]
     };
 
+    // Storage abstraction - all storage operations go through these functions
+    const WorkoutStorage = {
+        // Load all notes from storage
+        loadNotes: function() {
+            try {
+                const saved = localStorage.getItem('workoutNotes');
+                return saved ? JSON.parse(saved) : {};
+            } catch (error) {
+                console.error('Error loading notes:', error);
+                return {};
+            }
+        },
+
+        // Save all notes to storage
+        saveNotes: function(notes) {
+            try {
+                localStorage.setItem('workoutNotes', JSON.stringify(notes));
+            } catch (error) {
+                console.error('Error saving notes:', error);
+            }
+        },
+
+        // Get a single exercise note
+        getNote: function(exerciseName) {
+            const notes = this.loadNotes();
+            return notes[exerciseName] || '';
+        },
+
+        // Save a single exercise note
+        saveNote: function(exerciseName, noteText) {
+            const notes = this.loadNotes();
+            notes[exerciseName] = noteText;
+            this.saveNotes(notes);
+        }
+    };
+
+    // Global state
+    let exerciseNotes = {};  // Loaded from localStorage
+    let expandedExercise = null;  // Track which exercise input is open
+
     function generateWorkout() {
         const day = document.getElementById('daySelect').value;
         const exercises = trainingData[day];
         const display = document.getElementById('workoutContent');
 
+        // Close any open input boxes
+        expandedExercise = null;
+
         let html = `<div class="day-title">${day} Routine</div><ul>`;
 
-        exercises.forEach(exerciseOptions => {
+        exercises.forEach((exerciseOptions, index) => {
             // Each exerciseOptions is already an array, pick one at random
             const choice = exerciseOptions[Math.floor(Math.random() * exerciseOptions.length)];
-            html += `<li>${choice}</li>`;
+            const note = exerciseNotes[choice] || '';
+            const exerciseId = `exercise-${index}`;
+
+            // Use data attributes to avoid escaping issues with exercise names
+            html += `<li id="${exerciseId}" data-exercise="${choice.replace(/"/g, '&quot;')}">
+                <span class="exercise-name">${choice}</span>
+                <span class="exercise-note">${note}</span>
+            </li>`;
         });
 
         html += `</ul>`;
         display.innerHTML = html;
+
+        // Attach click handlers after rendering
+        exercises.forEach((_, index) => {
+            const exerciseId = `exercise-${index}`;
+            const li = document.getElementById(exerciseId);
+            if (li) {
+                li.addEventListener('click', function() {
+                    toggleNoteInput(exerciseId, this.getAttribute('data-exercise'));
+                });
+            }
+        });
     }
+
+    function toggleNoteInput(exerciseId, exerciseName) {
+        const li = document.getElementById(exerciseId);
+        if (!li) return;
+
+        // If this exercise already has an input, remove it
+        const existingInput = li.querySelector('.note-input');
+        if (existingInput) {
+            existingInput.remove();
+            expandedExercise = null;
+            return;
+        }
+
+        // Close any other open input first (one at a time)
+        if (expandedExercise) {
+            const prevInput = document.querySelector('.note-input');
+            if (prevInput) prevInput.remove();
+        }
+
+        // Create and insert input box
+        const currentNote = exerciseNotes[exerciseName] || '';
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'note-input';
+        input.value = currentNote;
+        input.placeholder = 'e.g., 70x12 75x10 80x8';
+
+        // Auto-save on input
+        input.addEventListener('input', (e) => {
+            const newNote = e.target.value;
+            exerciseNotes[exerciseName] = newNote;
+            WorkoutStorage.saveNote(exerciseName, newNote);
+            // Update the note display
+            li.querySelector('.exercise-note').textContent = newNote;
+        });
+
+        // Auto-close on blur
+        input.addEventListener('blur', () => {
+            setTimeout(() => {
+                if (input.parentNode) {
+                    input.remove();
+                }
+            }, 150);  // Delay to allow click events
+            expandedExercise = null;
+        });
+
+        // Prevent click on input from closing it
+        input.addEventListener('click', (e) => {
+            e.stopPropagation();
+        });
+
+        li.appendChild(input);
+        input.focus();
+        expandedExercise = exerciseId;
+    }
+
+    // Load notes from storage using abstraction layer
+    exerciseNotes = WorkoutStorage.loadNotes();
 
     // Set default day based on actual day of week
     const today = Object.keys(trainingData)[new Date().getDay()];
