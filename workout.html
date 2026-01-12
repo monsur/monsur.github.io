@@ -84,7 +84,7 @@
 
 <div class="container">
     <h1>Today's Routine</h1>
-    
+
     <div class="selector-group">
         <label for="daySelect">Select Training Day:</label>
         <select id="daySelect" onchange="generateWorkout()">
@@ -111,34 +111,34 @@
 <script>
     const trainingData = {
         "Friday": [
-            "Bench press",
-            "Barbell row / One-Arm Dumbbell Row",
-            "Lat pulldowns",
-            "Cable flys / Dumbbell flys / Pec Deck",
+            "Bench Press",
+            "Barbell Row / One-Arm Dumbbell Row",
+            "Lat Pulldowns",
+            "Cable Flys / Dumbbell Flys / Pec Deck",
             "Standing Dumbbell ITWY Raises / Incline Dumbbell ITWY Raises / Scapular Plane Raises / Prone Y-Extensions",
-            "Easy run: 25–35 min conversational pace"
+            "Easy Run: 25-35 min conversational pace"
         ],
         "Saturday": [
-            "Barbell squat / Goblet Squat",
-            "Barbell Romanian deadlift",
-            "Dumbbell split squat",
-            "Leg press calf raises",
-            "Farmer’s walk"
+            "Barbell Squat / Goblet Squat",
+            "Barbell Romanian Deadlift",
+            "Dumbbell Split Squat",
+            "Leg Press Calf Raises",
+            "Farmer's Walk"
         ],
         "Sunday": [
-            "Low incline dumbbell press / Incline machine chest press",
-            "Arnold press / Single-Arm Overhead Press",
-            "Cable flys / Dumbbell flys / Pec Deck",
-            "Cable pushdowns / Overhead Dumbbell Extension",
-            "Face pulls / cable external rotations",
-            "Speed run: 5×3 min hard / 2 min easy jog"
+            "Low Incline Dumbbell Press / Incline Machine Chest Press",
+            "Arnold Press / Single-Arm Overhead Press",
+            "Cable Flys / Dumbbell Flys / Pec Deck",
+            "Cable Pushdowns / Overhead Dumbbell Extension",
+            "Face Pulls / Cable External Rotations",
+            "Speed Run: 5×3 min hard / 2 min easy jog"
         ],
         "Monday": [
-            "Inverted row",
-            "Lat pulldowns",
-            "Seated dumbbell curls / hammer curl / dumbbell reverse curls",
-            "Dumbbell reverse flys",
-            "Dead hangs"
+            "Inverted Row",
+            "Lat Pulldowns",
+            "Seated Dumbbell Curls / Hammer Curl / Dumbbell Reverse Curls",
+            "Dumbbell Reverse Flys",
+            "Dead Hangs"
         ],
         "Tuesday": ["Peloton bike or outdoor jog 30–45 min easy"],
         "Wednesday": ["Rest Day - Full recovery"],
@@ -149,16 +149,16 @@
         const day = document.getElementById('daySelect').value;
         const exercises = trainingData[day];
         const display = document.getElementById('workoutContent');
-        
+
         let html = `<div class="day-title">${day} Routine</div><ul>`;
-        
+
         exercises.forEach(item => {
             // Split by "/" and pick one at random
             const options = item.split(' / ');
             const choice = options[Math.floor(Math.random() * options.length)];
             html += `<li>${choice.trim()}</li>`;
         });
-        
+
         html += `</ul>`;
         display.innerHTML = html;
     }
