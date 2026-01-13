@@ -104,6 +104,27 @@
             outline: none;
             border-color: var(--primary);
         }
+        .swap-container {
+            width: 100%;
+            margin-top: 4px;
+            display: flex;
+            justify-content: flex-end;
+        }
+        .swap-link {
+            font-size: 0.75rem;
+            color: #64748b;
+            text-decoration: none;
+            cursor: pointer;
+            transition: color 0.2s;
+            padding: 2px 4px;
+        }
+        .swap-link:hover {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+        .swap-link:active {
+            color: #1e40af;
+        }
         .habit-section {
             margin-top: 1.5rem;
             padding: 10px;
@@ -218,6 +239,7 @@
     // Global state
     let exerciseNotes = {};  // Loaded from localStorage
     let expandedExercise = null;  // Track which exercise input is open
+    let currentSelections = {};  // Track current alternate selections: { "day-index": alternateIndex }
 
     function generateWorkout() {
         const day = document.getElementById('daySelect').value;
@@ -229,17 +251,31 @@
 
         let html = `<div class="day-title">
             <span>${day} Routine</span>
-            <span class="randomize-icon" onclick="generateWorkout()" title="Randomize alternate exercises">⟳</span>
+            <span class="randomize-icon" onclick="randomizeWorkout()" title="Randomize alternate exercises">⟳</span>
         </div><ul>`;
 
         exercises.forEach((exerciseOptions, index) => {
-            // Each exerciseOptions is already an array, pick one at random
-            const choice = exerciseOptions[Math.floor(Math.random() * exerciseOptions.length)];
+            const selectionKey = `${day}-${index}`;
+
+            // Check if we have a tracked selection, otherwise randomize
+            let selectedIndex;
+            if (currentSelections[selectionKey] !== undefined) {
+                selectedIndex = currentSelections[selectionKey];
+            } else {
+                selectedIndex = Math.floor(Math.random() * exerciseOptions.length);
+                currentSelections[selectionKey] = selectedIndex;
+            }
+
+            const choice = exerciseOptions[selectedIndex];
             const note = exerciseNotes[choice] || '';
             const exerciseId = `exercise-${index}`;
 
             // Use data attributes to avoid escaping issues with exercise names
-            html += `<li id="${exerciseId}" data-exercise="${choice.replace(/"/g, '&quot;')}">
+            html += `<li id="${exerciseId}"
+                data-exercise="${choice.replace(/"/g, '&quot;')}"
+                data-day="${day}"
+                data-index="${index}"
+                data-alternates-count="${exerciseOptions.length}">
                 <span class="exercise-name">${choice}</span>
                 <span class="exercise-note">${note}</span>
             </li>`;
@@ -260,6 +296,18 @@
         });
     }
 
+    function randomizeWorkout() {
+        const day = document.getElementById('daySelect').value;
+        const exercises = trainingData[day];
+
+        // Clear selections for current day only
+        exercises.forEach((_, index) => {
+            delete currentSelections[`${day}-${index}`];
+        });
+
+        generateWorkout();
+    }
+
     function toggleNoteInput(exerciseId, exerciseName) {
         const li = document.getElementById(exerciseId);
         if (!li) return;
@@ -268,6 +316,9 @@
         const existingInput = li.querySelector('.note-input');
         if (existingInput) {
             existingInput.remove();
+            // Also remove swap link container if it exists
+            const existingSwapContainer = li.querySelector('.swap-container');
+            if (existingSwapContainer) existingSwapContainer.remove();
             expandedExercise = null;
             return;
         }
@@ -276,6 +327,8 @@
         if (expandedExercise) {
             const prevInput = document.querySelector('.note-input');
             if (prevInput) prevInput.remove();
+            const prevSwapContainer = document.querySelector('.swap-container');
+            if (prevSwapContainer) prevSwapContainer.remove();
         }
 
         // Create and insert input box
@@ -300,6 +353,8 @@
             setTimeout(() => {
                 if (input.parentNode) {
                     input.remove();
+                    const swapContainer = li.querySelector('.swap-container');
+                    if (swapContainer) swapContainer.remove();
                 }
             }, 150);  // Delay to allow click events
             expandedExercise = null;
@@ -313,6 +368,74 @@
         li.appendChild(input);
         input.focus();
         expandedExercise = exerciseId;
+
+        // Add swap link if there are alternates
+        const alternatesCount = parseInt(li.getAttribute('data-alternates-count'));
+        if (alternatesCount > 1) {
+            const swapContainer = document.createElement('div');
+            swapContainer.className = 'swap-container';
+
+            const swapLink = document.createElement('a');
+            swapLink.href = '#';
+            swapLink.className = 'swap-link';
+            swapLink.textContent = 'swap';
+
+            swapLink.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                swapExercise(exerciseId, input);
+            });
+
+            // Prevent blur when clicking swap link (important!)
+            swapLink.addEventListener('mousedown', (e) => {
+                e.preventDefault();  // Prevents input from losing focus
+            });
+
+            swapContainer.appendChild(swapLink);
+            li.appendChild(swapContainer);
+        }
+    }
+
+    function swapExercise(exerciseId, inputElement) {
+        const li = document.getElementById(exerciseId);
+        if (!li) return;
+
+        // Get metadata from data attributes
+        const day = li.getAttribute('data-day');
+        const index = parseInt(li.getAttribute('data-index'));
+        const alternatesCount = parseInt(li.getAttribute('data-alternates-count'));
+
+        // Calculate next index (with wrapping)
+        const selectionKey = `${day}-${index}`;
+        const currentIndex = currentSelections[selectionKey];
+        const nextIndex = (currentIndex + 1) % alternatesCount;
+
+        // Update selection tracking
+        currentSelections[selectionKey] = nextIndex;
+
+        // Get new exercise name
+        const exerciseOptions = trainingData[day][index];
+        const newExerciseName = exerciseOptions[nextIndex];
+
+        // Update UI
+        li.querySelector('.exercise-name').textContent = newExerciseName;
+        li.setAttribute('data-exercise', newExerciseName);
+
+        // Load note for new exercise
+        const newNote = exerciseNotes[newExerciseName] || '';
+        li.querySelector('.exercise-note').textContent = newNote;
+
+        // Recreate input with new exercise context
+        if (inputElement.parentNode) {
+            inputElement.remove();
+        }
+        const swapContainer = li.querySelector('.swap-container');
+        if (swapContainer) {
+            swapContainer.remove();
+        }
+
+        expandedExercise = null;
+        toggleNoteInput(exerciseId, newExerciseName);
     }
 
     // Load notes from storage using abstraction layer
