@@ -5,12 +5,13 @@ title: Projects
 
 <h1>Projects</h1>
 
+<p>Some personal projects I've built over the years. Much of the newer stuff is built with AI, or as a way to learn AI.</p>
+
 <table class="projects-table">
   <tbody>
     {% for project in site.data.projects %}
     <tr>
       <td data-label="Project Name"><a href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a></td>
-      <td data-label="Status">{{ project.status }}</td>
       <td data-label="Details">{{ project.details }}</td>
     </tr>
     {% endfor %}
