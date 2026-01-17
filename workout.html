@@ -133,6 +133,70 @@
             font-size: 0.85rem;
             color: #1e40af;
         }
+        .history-section {
+            margin-top: 1.5rem;
+            border-top: 2px solid #f1f5f9;
+            padding-top: 1rem;
+        }
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #334155;
+            background: #f8fafc;
+            border-radius: 8px;
+            transition: background 0.2s;
+        }
+        .history-header:hover {
+            background: #f1f5f9;
+        }
+        .expand-icon {
+            transition: transform 0.3s;
+            font-size: 0.8rem;
+            color: #64748b;
+        }
+        .expand-icon.expanded {
+            transform: rotate(180deg);
+        }
+        .history-content {
+            max-height: 400px;
+            overflow-y: auto;
+            margin-top: 0.5rem;
+        }
+        .history-item {
+            margin-bottom: 0.75rem;
+            padding: 10px;
+            background: #f8fafc;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+        .history-date {
+            font-weight: 600;
+            color: #334155;
+            margin-bottom: 0.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .history-date.today {
+            color: var(--primary);
+        }
+        .history-exercises {
+            font-size: 0.8rem;
+            color: #64748b;
+            padding-left: 1rem;
+        }
+        .history-exercises li {
+            padding: 4px 0;
+            background: transparent;
+            margin-bottom: 2px;
+            border-radius: 0;
+            font-size: 0.8rem;
+        }
     </style>
 </head>
 <body>
@@ -159,6 +223,16 @@
 
     <div class="habit-section">
         <strong>Daily Habits:</strong> Core exercises & full-body stretching.
+    </div>
+
+    <div class="history-section">
+        <div class="history-header" onclick="toggleHistory()">
+            <span>Workout History</span>
+            <span class="expand-icon">▼</span>
+        </div>
+        <div class="history-content" id="historyContent" style="display: none;">
+            <!-- Populated dynamically -->
+        </div>
     </div>
 </div>
 
@@ -200,6 +274,41 @@
         ]
     };
 
+    // Helper functions to convert between storage format (exercise names) and runtime format (indices)
+    function indicesToExerciseNames(dayType, currentSelections) {
+        const exercises = trainingData[dayType];
+        const result = [];
+        exercises.forEach((exerciseOptions, index) => {
+            const selectedIndex = currentSelections[`${dayType}-${index}`];
+            if (selectedIndex !== undefined) {
+                result.push(exerciseOptions[selectedIndex]);
+            }
+        });
+        return result;
+    }
+
+    function exerciseNamesToIndices(dayType, exerciseNamesArray) {
+        const exercises = trainingData[dayType];
+        const result = {};
+
+        exerciseNamesArray.forEach((exerciseName, position) => {
+            const exerciseOptions = exercises[position];
+            if (!exerciseOptions) {
+                // Position doesn't exist in current trainingData (e.g., removed exercise)
+                return;
+            }
+
+            // Find the index of this exercise name in the alternates
+            const alternateIndex = exerciseOptions.indexOf(exerciseName);
+            if (alternateIndex !== -1) {
+                result[`${dayType}-${position}`] = alternateIndex;
+            }
+            // If not found, leave undefined (caller will randomize)
+        });
+
+        return result;
+    }
+
     // Storage abstraction - all storage operations go through these functions
     const WorkoutStorage = {
         // Load all notes from storage
@@ -233,6 +342,53 @@
             const notes = this.loadNotes();
             notes[exerciseName] = noteText;
             this.saveNotes(notes);
+        },
+
+        // Load all workout history from storage
+        loadHistory: function() {
+            try {
+                const saved = localStorage.getItem('workoutHistory');
+                return saved ? JSON.parse(saved) : {};
+            } catch (error) {
+                console.error('Error loading history:', error);
+                return {};
+            }
+        },
+
+        // Save all workout history to storage
+        saveHistory: function(history) {
+            try {
+                localStorage.setItem('workoutHistory', JSON.stringify(history));
+            } catch (error) {
+                console.error('Error saving history:', error);
+            }
+        },
+
+        // Save a workout session for a specific date
+        saveWorkoutSession: function(date, dayType, selectedExercises) {
+            const history = this.loadHistory();
+            history[date] = {
+                date: date,
+                dayType: dayType,
+                selectedExercises: selectedExercises,
+                timestamp: Date.now()
+            };
+            this.saveHistory(history);
+        },
+
+        // Get workout session for a specific date
+        getWorkoutSession: function(date) {
+            const history = this.loadHistory();
+            return history[date] || null;
+        },
+
+        // Find most recent workout of a specific day type
+        getMostRecentWorkoutByType: function(dayType) {
+            const history = this.loadHistory();
+            const sessions = Object.values(history)
+                .filter(session => session.dayType === dayType)
+                .sort((a, b) => b.timestamp - a.timestamp);
+            return sessions.length > 0 ? sessions[0] : null;
         }
     };
 
@@ -240,6 +396,17 @@
     let exerciseNotes = {};  // Loaded from localStorage
     let expandedExercise = null;  // Track which exercise input is open
     let currentSelections = {};  // Track current alternate selections: { "day-index": alternateIndex }
+    let currentDay = '';  // Current date in YYYY-MM-DD format
+    let currentDayType = '';  // Current workout type (e.g., "Friday")
+
+    // Helper function to get today's date in YYYY-MM-DD format
+    function getTodayDate() {
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, '0');
+        const day = String(today.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
 
     function generateWorkout() {
         const day = document.getElementById('daySelect').value;
@@ -248,6 +415,40 @@
 
         // Close any open input boxes
         expandedExercise = null;
+
+        // Check if user manually switched day types
+        if (day !== currentDayType) {
+            // User switched to a different day type
+            currentDayType = day;
+
+            // Search for most recent workout of this type
+            const recentWorkout = WorkoutStorage.getMostRecentWorkoutByType(day);
+
+            if (recentWorkout) {
+                // Load exercise selections from that workout (exact repeat)
+                const indices = exerciseNamesToIndices(day, recentWorkout.selectedExercises);
+
+                // Fill in any missing indices with randomization
+                exercises.forEach((exerciseOptions, index) => {
+                    const selectionKey = `${day}-${index}`;
+                    if (indices[selectionKey] === undefined) {
+                        indices[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
+                    }
+                });
+
+                currentSelections = { ...currentSelections, ...indices };
+            } else {
+                // No previous workout of this type, randomize
+                exercises.forEach((exerciseOptions, index) => {
+                    const selectionKey = `${day}-${index}`;
+                    currentSelections[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
+                });
+            }
+
+            // Save updated session for today
+            const selectedExercises = indicesToExerciseNames(day, currentSelections);
+            WorkoutStorage.saveWorkoutSession(currentDay, day, selectedExercises);
+        }
 
         let html = `<div class="day-title">
             <span>${day} Routine</span>
@@ -300,11 +501,17 @@
         const day = document.getElementById('daySelect').value;
         const exercises = trainingData[day];
 
-        // Clear selections for current day only
-        exercises.forEach((_, index) => {
-            delete currentSelections[`${day}-${index}`];
+        // Generate new random selections for all exercises
+        exercises.forEach((exerciseOptions, index) => {
+            const selectionKey = `${day}-${index}`;
+            currentSelections[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
         });
 
+        // Save updated session
+        const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
+        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
+
+        // Regenerate UI
         generateWorkout();
     }
 
@@ -436,17 +643,120 @@
 
         expandedExercise = null;
         toggleNoteInput(exerciseId, newExerciseName);
+
+        // Save updated session after swapping
+        const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
+        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
     }
 
-    // Load notes from storage using abstraction layer
-    exerciseNotes = WorkoutStorage.loadNotes();
+    // Toggle history section visibility
+    function toggleHistory() {
+        const content = document.getElementById('historyContent');
+        const icon = document.querySelector('.expand-icon');
 
-    // Set default day based on actual day of week
-    const today = Object.keys(trainingData)[new Date().getDay()];
-    document.getElementById('daySelect').value = today;
+        if (content.style.display === 'none') {
+            content.style.display = 'block';
+            icon.classList.add('expanded');
+            renderHistory();
+        } else {
+            content.style.display = 'none';
+            icon.classList.remove('expanded');
+        }
+    }
+
+    // Render workout history
+    function renderHistory() {
+        const content = document.getElementById('historyContent');
+        const history = WorkoutStorage.loadHistory();
+        const sessions = Object.values(history).sort((a, b) => b.timestamp - a.timestamp);
+
+        if (sessions.length === 0) {
+            content.innerHTML = '<p style="padding: 10px; text-align: center; color: #94a3b8; font-size: 0.85rem;">No workout history yet</p>';
+            return;
+        }
+
+        // Show last 60 days
+        const maxSessions = sessions.slice(0, 60);
+
+        let html = '';
+        maxSessions.forEach(session => {
+            const date = new Date(session.date);
+            const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+            const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
+            const dayOfMonth = date.getDate();
+            const isToday = session.date === currentDay;
+
+            html += `<div class="history-item">
+                <div class="history-date ${isToday ? 'today' : ''}">
+                    <span>${dayName}, ${monthName} ${dayOfMonth}</span>
+                    <span style="font-size: 0.75rem; font-weight: normal;">${session.dayType} workout</span>
+                </div>
+                <ul class="history-exercises">`;
+
+            session.selectedExercises.forEach(exercise => {
+                const note = exerciseNotes[exercise] || '';
+                const noteDisplay = note ? ` <span style="color: #94a3b8;">• ${note}</span>` : '';
+                html += `<li>• ${exercise}${noteDisplay}</li>`;
+            });
+
+            html += `</ul></div>`;
+        });
+
+        content.innerHTML = html;
+    }
+
+    // Initialize the application
+    function initializeApp() {
+        // Load notes from storage
+        exerciseNotes = WorkoutStorage.loadNotes();
+
+        // Set current day to today's date
+        currentDay = getTodayDate();
+
+        // Try to load today's workout session
+        const todaySession = WorkoutStorage.getWorkoutSession(currentDay);
+
+        if (todaySession) {
+            // Load existing session
+            currentDayType = todaySession.dayType;
+
+            // Convert exercise names to indices for current trainingData
+            const indices = exerciseNamesToIndices(currentDayType, todaySession.selectedExercises);
+
+            // Fill in any missing indices with randomization (handles removed exercises)
+            const exercises = trainingData[currentDayType];
+            exercises.forEach((exerciseOptions, index) => {
+                const selectionKey = `${currentDayType}-${index}`;
+                if (indices[selectionKey] === undefined) {
+                    indices[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
+                }
+            });
+
+            currentSelections = indices;
+        } else {
+            // Create new session
+            // Set dayType based on day of week
+            currentDayType = Object.keys(trainingData)[new Date().getDay()];
+
+            // Randomize alternate exercises
+            const exercises = trainingData[currentDayType];
+            exercises.forEach((exerciseOptions, index) => {
+                const selectionKey = `${currentDayType}-${index}`;
+                currentSelections[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
+            });
+
+            // Save the new session
+            const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
+            WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
+        }
+
+        // Update UI
+        document.getElementById('daySelect').value = currentDayType;
+        generateWorkout();
+    }
 
     // Run on load
-    generateWorkout();
+    initializeApp();
 </script>
 
 </body>
