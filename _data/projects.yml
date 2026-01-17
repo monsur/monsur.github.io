@@ -31,4 +31,4 @@
 - name: "Readeroo"
   url: "https://github.com/monsur/readeroo"
   status: "Completed"
-  details: "[Obsolete] A Firefox extension to save articles to read later. A precursor to Instapaper, Pocket, Readwise, etc. It was written up in Lifehacker, which was cool! https://lifehacker.com/keep-up-with-your-unread-bookmarks-with-readeroo-315538"
+  details: "[Obsolete] A Firefox extension to save articles to read later. A precursor to Instapaper, Pocket, Readwise, etc. It was <a href=\"https://lifehacker.com/keep-up-with-your-unread-bookmarks-with-readeroo-315538\">written up in Lifehacker</a>, which was cool!"
