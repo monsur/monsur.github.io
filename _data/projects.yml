@@ -1,0 +1,14 @@
+- name: "Sample Project 1"
+  url: "https://github.com/monsur/sample-project-1"
+  status: "Active"
+  details: "A sample project demonstrating the projects section. Replace with your actual projects."
+
+- name: "Sample Project 2"
+  url: "https://github.com/monsur/sample-project-2"
+  status: "In Progress"
+  details: "Another sample project. Edit _data/projects.yml to add your real projects."
+
+- name: "Sample Project 3"
+  url: "https://github.com/monsur/sample-project-3"
+  status: "Completed"
+  details: "This is a completed sample project. You can use any status text you want."

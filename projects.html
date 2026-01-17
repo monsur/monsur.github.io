@@ -1,0 +1,18 @@
+---
+layout: default
+title: Projects
+---
+
+<h1>Projects</h1>
+
+<table class="projects-table">
+  <tbody>
+    {% for project in site.data.projects %}
+    <tr>
+      <td data-label="Project Name"><a href="{{ project.url }}" target="_blank" rel="noopener">{{ project.name }}</a></td>
+      <td data-label="Status">{{ project.status }}</td>
+      <td data-label="Details">{{ project.details }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

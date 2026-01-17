@@ -317,6 +317,82 @@
       height: 20px;
     }
 
+    /* Projects table styles */
+    .projects-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+    }
+
+    .projects-table th,
+    .projects-table td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .projects-table th {
+      font-weight: 600;
+      color: var(--text-color);
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .projects-table tr:last-child td {
+      border-bottom: none;
+    }
+
+    .projects-table a {
+      color: var(--link-color);
+      text-decoration: none;
+    }
+
+    .projects-table a:hover {
+      color: var(--link-hover);
+      text-decoration: underline;
+    }
+
+    /* Responsive table for mobile */
+    @media screen and (max-width: 600px) {
+      .projects-table {
+        font-size: 14px;
+      }
+
+      .projects-table th,
+      .projects-table td {
+        padding: 8px 4px;
+      }
+    }
+
+    /* Stack table as cards on very small screens */
+    @media screen and (max-width: 480px) {
+      .projects-table thead {
+        display: none;
+      }
+
+      .projects-table tr {
+        display: block;
+        margin-bottom: 20px;
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        padding: 10px;
+      }
+
+      .projects-table td {
+        display: block;
+        text-align: left;
+        padding: 8px 0;
+        border-bottom: none;
+      }
+
+      .projects-table td:before {
+        content: attr(data-label);
+        font-weight: 600;
+        display: block;
+        margin-bottom: 4px;
+        color: var(--text-muted);
+      }
+    }
+
     /* Responsive */
     @media screen and (max-width: 600px) {
       .wrapper {
@@ -363,6 +439,7 @@
 
       <nav class="site-nav">
         <a href="/about/">About</a>
+        <a href="/projects/">Projects</a>
         <a href="/">Blog</a>
       </nav>
     </div>
