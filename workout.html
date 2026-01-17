@@ -680,7 +680,9 @@
 
         let html = '';
         maxSessions.forEach((session, index) => {
-            const date = new Date(session.date);
+            // Parse date in local timezone to avoid UTC conversion issues
+            const dateParts = session.date.split('-');
+            const date = new Date(parseInt(dateParts[0]), parseInt(dateParts[1]) - 1, parseInt(dateParts[2]));
             const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
             const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
             const dayOfMonth = date.getDate();
@@ -689,7 +691,7 @@
 
             html += `<div class="history-item" id="${itemId}" onclick="toggleHistoryItem('${itemId}')">
                 <div class="history-date ${isToday ? 'today' : ''}">
-                    ${dayName}, ${monthName} ${dayOfMonth}: ${session.dayType}
+                    ${dayName}, ${monthName} ${dayOfMonth}
                 </div>
                 <ul class="history-exercises" id="${itemId}-exercises">`;
 
