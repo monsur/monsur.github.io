@@ -168,19 +168,20 @@
             margin-top: 0.5rem;
         }
         .history-item {
-            margin-bottom: 0.75rem;
-            padding: 10px;
+            margin-bottom: 0.5rem;
+            padding: 8px 10px;
             background: #f8fafc;
             border-radius: 6px;
             font-size: 0.85rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .history-item:hover {
+            background: #f1f5f9;
         }
         .history-date {
-            font-weight: 600;
+            font-weight: 500;
             color: #334155;
-            margin-bottom: 0.25rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
         }
         .history-date.today {
             color: var(--primary);
@@ -189,6 +190,11 @@
             font-size: 0.8rem;
             color: #64748b;
             padding-left: 1rem;
+            margin-top: 0.5rem;
+            display: none;
+        }
+        .history-exercises.expanded {
+            display: block;
         }
         .history-exercises li {
             padding: 4px 0;
@@ -675,19 +681,19 @@
         const maxSessions = sessions.slice(0, 60);
 
         let html = '';
-        maxSessions.forEach(session => {
+        maxSessions.forEach((session, index) => {
             const date = new Date(session.date);
             const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
             const monthName = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][date.getMonth()];
             const dayOfMonth = date.getDate();
             const isToday = session.date === currentDay;
+            const itemId = `history-item-${index}`;
 
-            html += `<div class="history-item">
+            html += `<div class="history-item" id="${itemId}" onclick="toggleHistoryItem('${itemId}')">
                 <div class="history-date ${isToday ? 'today' : ''}">
-                    <span>${dayName}, ${monthName} ${dayOfMonth}</span>
-                    <span style="font-size: 0.75rem; font-weight: normal;">${session.dayType} workout</span>
+                    ${dayName}, ${monthName} ${dayOfMonth}: ${session.dayType}
                 </div>
-                <ul class="history-exercises">`;
+                <ul class="history-exercises" id="${itemId}-exercises">`;
 
             session.selectedExercises.forEach(exercise => {
                 const note = exerciseNotes[exercise] || '';
@@ -699,6 +705,14 @@
         });
 
         content.innerHTML = html;
+    }
+
+    // Toggle individual history item expansion
+    function toggleHistoryItem(itemId) {
+        const exercises = document.getElementById(`${itemId}-exercises`);
+        if (exercises) {
+            exercises.classList.toggle('expanded');
+        }
     }
 
     // Initialize the application
