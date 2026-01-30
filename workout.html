@@ -287,9 +287,7 @@
         return result;
     }
 
-    // Convert exercise array to indices. Handles both:
-    // - Old format: array of strings ["Bench Press", "Lat Pulldowns", ...]
-    // - New format: array of objects [{name: "Bench Press", note: "..."}, ...]
+    // Convert exercise array to indices
     function exerciseNamesToIndices(dayType, exerciseArray) {
         const exercises = trainingData[dayType];
         const result = {};
@@ -301,8 +299,7 @@
                 return;
             }
 
-            // Handle both formats: object with name property or plain string
-            const exerciseName = typeof exercise === 'object' ? exercise.name : exercise;
+            const exerciseName = exercise.name;
 
             // Find the index of this exercise name in the alternates
             const alternateIndex = exerciseOptions.indexOf(exerciseName);
@@ -463,8 +460,7 @@
 
             if (recentWorkout) {
                 // Load exercise selections from that workout (exact repeat)
-                // Handle both old format (selectedExercises) and new format (exercises)
-                const exerciseList = recentWorkout.exercises || recentWorkout.selectedExercises || [];
+                const exerciseList = recentWorkout.exercises || [];
                 const indices = exerciseNamesToIndices(day, exerciseList);
 
                 // Fill in any missing indices with randomization
@@ -736,16 +732,11 @@
                 </div>
                 <ul class="history-exercises" id="${itemId}-exercises">`;
 
-            // Handle both old format (selectedExercises: string[]) and new format (exercises: {name, note}[])
-            const exerciseList = session.exercises || session.selectedExercises || [];
+            const exerciseList = session.exercises || [];
             exerciseList.forEach(exercise => {
-                // New format: exercise is {name, note} object
-                // Old format: exercise is just a string
-                const isNewFormat = typeof exercise === 'object';
-                const exerciseName = isNewFormat ? exercise.name : exercise;
-                const note = isNewFormat ? (exercise.note || '') : (exerciseNotes[exerciseName] || '');
+                const note = exercise.note || '';
                 const noteDisplay = note ? ` <span style="color: #94a3b8;">• ${note}</span>` : '';
-                html += `<li>• ${exerciseName}${noteDisplay}</li>`;
+                html += `<li>• ${exercise.name}${noteDisplay}</li>`;
             });
 
             html += `</ul></div>`;
@@ -778,8 +769,7 @@
             currentDayType = todaySession.dayType;
 
             // Convert exercise names to indices for current trainingData
-            // Handle both old format (selectedExercises) and new format (exercises)
-            const exerciseList = todaySession.exercises || todaySession.selectedExercises || [];
+            const exerciseList = todaySession.exercises || [];
             const indices = exerciseNamesToIndices(currentDayType, exerciseList);
 
             // Fill in any missing indices with randomization (handles removed exercises)
