@@ -287,16 +287,22 @@
         return result;
     }
 
-    function exerciseNamesToIndices(dayType, exerciseNamesArray) {
+    // Convert exercise array to indices. Handles both:
+    // - Old format: array of strings ["Bench Press", "Lat Pulldowns", ...]
+    // - New format: array of objects [{name: "Bench Press", note: "..."}, ...]
+    function exerciseNamesToIndices(dayType, exerciseArray) {
         const exercises = trainingData[dayType];
         const result = {};
 
-        exerciseNamesArray.forEach((exerciseName, position) => {
+        exerciseArray.forEach((exercise, position) => {
             const exerciseOptions = exercises[position];
             if (!exerciseOptions) {
                 // Position doesn't exist in current trainingData (e.g., removed exercise)
                 return;
             }
+
+            // Handle both formats: object with name property or plain string
+            const exerciseName = typeof exercise === 'object' ? exercise.name : exercise;
 
             // Find the index of this exercise name in the alternates
             const alternateIndex = exerciseOptions.indexOf(exerciseName);
@@ -306,6 +312,23 @@
             // If not found, leave undefined (caller will randomize)
         });
 
+        return result;
+    }
+
+    // Capture exercise snapshot with current notes for storage
+    function captureExerciseSnapshot(dayType, currentSelections) {
+        const exercises = trainingData[dayType];
+        const result = [];
+        exercises.forEach((exerciseOptions, index) => {
+            const selectedIndex = currentSelections[`${dayType}-${index}`];
+            if (selectedIndex !== undefined) {
+                const name = exerciseOptions[selectedIndex];
+                result.push({
+                    name: name,
+                    note: exerciseNotes[name] || ''
+                });
+            }
+        });
         return result;
     }
 
@@ -365,15 +388,29 @@
         },
 
         // Save a workout session for a specific date
-        saveWorkoutSession: function(date, dayType, selectedExercises) {
+        // exercises: array of {name, note} objects
+        saveWorkoutSession: function(date, dayType, exercises) {
             const history = this.loadHistory();
             history[date] = {
                 date: date,
                 dayType: dayType,
-                selectedExercises: selectedExercises,
+                exercises: exercises,
                 timestamp: Date.now()
             };
             this.saveHistory(history);
+        },
+
+        // Update a specific exercise note in a session
+        updateSessionExerciseNote: function(date, exerciseName, newNote) {
+            const history = this.loadHistory();
+            const session = history[date];
+            if (session && session.exercises) {
+                const exercise = session.exercises.find(e => e.name === exerciseName);
+                if (exercise) {
+                    exercise.note = newNote;
+                    this.saveHistory(history);
+                }
+            }
         },
 
         // Get workout session for a specific date
@@ -426,7 +463,9 @@
 
             if (recentWorkout) {
                 // Load exercise selections from that workout (exact repeat)
-                const indices = exerciseNamesToIndices(day, recentWorkout.selectedExercises);
+                // Handle both old format (selectedExercises) and new format (exercises)
+                const exerciseList = recentWorkout.exercises || recentWorkout.selectedExercises || [];
+                const indices = exerciseNamesToIndices(day, exerciseList);
 
                 // Fill in any missing indices with randomization
                 exercises.forEach((exerciseOptions, index) => {
@@ -446,8 +485,8 @@
             }
 
             // Save updated session for today
-            const selectedExercises = indicesToExerciseNames(day, currentSelections);
-            WorkoutStorage.saveWorkoutSession(currentDay, day, selectedExercises);
+            const exerciseSnapshot = captureExerciseSnapshot(day, currentSelections);
+            WorkoutStorage.saveWorkoutSession(currentDay, day, exerciseSnapshot);
         }
 
         let html = `<div class="day-title">
@@ -508,8 +547,8 @@
         });
 
         // Save updated session
-        const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
-        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
+        const exerciseSnapshot = captureExerciseSnapshot(currentDayType, currentSelections);
+        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, exerciseSnapshot);
 
         // Regenerate UI
         generateWorkout();
@@ -551,6 +590,8 @@
             const newNote = e.target.value;
             exerciseNotes[exerciseName] = newNote;
             WorkoutStorage.saveNote(exerciseName, newNote);
+            // Also update today's session with the new note
+            WorkoutStorage.updateSessionExerciseNote(currentDay, exerciseName, newNote);
             // Update the note display
             li.querySelector('.exercise-note').textContent = newNote;
         });
@@ -645,8 +686,8 @@
         toggleNoteInput(exerciseId, newExerciseName);
 
         // Save updated session after swapping
-        const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
-        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
+        const exerciseSnapshot = captureExerciseSnapshot(currentDayType, currentSelections);
+        WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, exerciseSnapshot);
     }
 
     // Toggle history section visibility
@@ -695,10 +736,16 @@
                 </div>
                 <ul class="history-exercises" id="${itemId}-exercises">`;
 
-            session.selectedExercises.forEach(exercise => {
-                const note = exerciseNotes[exercise] || '';
+            // Handle both old format (selectedExercises: string[]) and new format (exercises: {name, note}[])
+            const exerciseList = session.exercises || session.selectedExercises || [];
+            exerciseList.forEach(exercise => {
+                // New format: exercise is {name, note} object
+                // Old format: exercise is just a string
+                const isNewFormat = typeof exercise === 'object';
+                const exerciseName = isNewFormat ? exercise.name : exercise;
+                const note = isNewFormat ? (exercise.note || '') : (exerciseNotes[exerciseName] || '');
                 const noteDisplay = note ? ` <span style="color: #94a3b8;">• ${note}</span>` : '';
-                html += `<li>• ${exercise}${noteDisplay}</li>`;
+                html += `<li>• ${exerciseName}${noteDisplay}</li>`;
             });
 
             html += `</ul></div>`;
@@ -731,7 +778,9 @@
             currentDayType = todaySession.dayType;
 
             // Convert exercise names to indices for current trainingData
-            const indices = exerciseNamesToIndices(currentDayType, todaySession.selectedExercises);
+            // Handle both old format (selectedExercises) and new format (exercises)
+            const exerciseList = todaySession.exercises || todaySession.selectedExercises || [];
+            const indices = exerciseNamesToIndices(currentDayType, exerciseList);
 
             // Fill in any missing indices with randomization (handles removed exercises)
             const exercises = trainingData[currentDayType];
@@ -756,8 +805,8 @@
             });
 
             // Save the new session
-            const selectedExercises = indicesToExerciseNames(currentDayType, currentSelections);
-            WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, selectedExercises);
+            const exerciseSnapshot = captureExerciseSnapshot(currentDayType, currentSelections);
+            WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, exerciseSnapshot);
         }
 
         // Update UI
