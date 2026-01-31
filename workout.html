@@ -479,10 +479,7 @@
                     currentSelections[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
                 });
             }
-
-            // Save updated session for today
-            const exerciseSnapshot = captureExerciseSnapshot(day, currentSelections);
-            WorkoutStorage.saveWorkoutSession(currentDay, day, exerciseSnapshot);
+            // View-only until user interacts (note edit, swap, or randomize)
         }
 
         let html = `<div class="day-title">
@@ -586,8 +583,9 @@
             const newNote = e.target.value;
             exerciseNotes[exerciseName] = newNote;
             WorkoutStorage.saveNote(exerciseName, newNote);
-            // Also update today's session with the new note
-            WorkoutStorage.updateSessionExerciseNote(currentDay, exerciseName, newNote);
+            // Save full session snapshot (creates session if it doesn't exist)
+            const exerciseSnapshot = captureExerciseSnapshot(currentDayType, currentSelections);
+            WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, exerciseSnapshot);
             // Update the note display
             li.querySelector('.exercise-note').textContent = newNote;
         });
@@ -793,10 +791,7 @@
                 const selectionKey = `${currentDayType}-${index}`;
                 currentSelections[selectionKey] = Math.floor(Math.random() * exerciseOptions.length);
             });
-
-            // Save the new session
-            const exerciseSnapshot = captureExerciseSnapshot(currentDayType, currentSelections);
-            WorkoutStorage.saveWorkoutSession(currentDay, currentDayType, exerciseSnapshot);
+            // Session will be saved on first user interaction (note edit, swap, or randomize)
         }
 
         // Update UI
