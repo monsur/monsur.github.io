@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ffffff">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Currency">
+<title>Currency — ISK / DKK / EUR</title>
+<style>
+:root{
+  --bg:#ffffff;
+  --text:#15161a;
+  --muted:#71757e;
+  --line:#e6e6e4;
+  --soft:#f5f5f3;
+  --accent:#2563eb;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.45;
+  -webkit-text-size-adjust:100%;
+  padding:24px 18px 56px;
+}
+.wrap{max-width:600px;margin:0 auto}
+h1{font-size:20px;font-weight:600;letter-spacing:-.01em;margin:0}
+
+/* converter — single line */
+.conv{
+  display:flex;align-items:center;gap:7px;
+  border:1px solid var(--line);border-radius:10px;
+  padding:9px 11px;margin:12px 0 20px;
+}
+.amt{
+  flex:1 1 0;min-width:0;width:100%;
+  background:transparent;border:0;padding:0;margin:0;color:var(--text);
+  font:600 21px/1.25 inherit;letter-spacing:-.01em;
+  font-variant-numeric:tabular-nums;
+}
+.amt:focus{outline:none}
+.pick{position:relative;flex:none}
+.pick select{
+  appearance:none;-webkit-appearance:none;
+  background:transparent;border:0;color:var(--muted);
+  font:500 12px/1 inherit;letter-spacing:.04em;
+  padding:5px 14px 5px 0;margin:0;cursor:pointer;
+}
+.pick::after{
+  content:"";position:absolute;right:1px;top:50%;margin-top:-1.5px;
+  border:3.5px solid transparent;border-top-color:var(--muted);pointer-events:none;
+}
+.swap{
+  flex:none;width:24px;height:24px;padding:0;border-radius:50%;
+  background:var(--bg);border:1px solid var(--line);color:var(--muted);
+  font-size:11px;line-height:1;cursor:pointer;
+}
+.swap:hover{border-color:var(--muted);color:var(--text)}
+
+/* tabs */
+.tabs{display:flex;gap:3px;background:var(--soft);border-radius:10px;padding:3px;margin-bottom:20px}
+.tab{
+  flex:1;border:0;background:transparent;border-radius:8px;cursor:pointer;
+  padding:9px 4px;font:500 13.5px/1.2 inherit;color:var(--muted);
+}
+.tab[aria-selected="true"]{
+  background:var(--bg);color:var(--text);font-weight:600;
+  box-shadow:0 1px 2px rgba(0,0,0,.07),0 0 0 .5px rgba(0,0,0,.05);
+}
+
+/* tables */
+.grids{display:grid;gap:16px;grid-template-columns:1fr}
+@media(min-width:540px){.grids{grid-template-columns:1fr 1fr}}
+.card h2{
+  margin:0 0 2px;font-size:12px;font-weight:500;color:var(--muted);
+  letter-spacing:.03em;padding-bottom:8px;border-bottom:1px solid var(--line);
+}
+table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+td{padding:9px 2px;font-size:15px;border-bottom:1px solid var(--line)}
+tr:last-child td{border-bottom:0}
+td.k{color:var(--muted);width:45%}
+td.v{text-align:right;font-weight:500}
+.unit{font-size:11.5px;color:var(--muted);margin-left:3px;font-weight:400}
+
+.tip{margin:22px 0 0;font-size:13.5px;color:var(--text)}
+.tip b{font-weight:600}
+.tip em{font-style:normal;color:var(--muted)}
+
+/* footer */
+footer{margin-top:26px;border-top:1px solid var(--line);padding-top:14px}
+.foot-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between}
+.src{font-size:12px;color:var(--muted);flex:1;min-width:170px;font-variant-numeric:tabular-nums}
+.btns{display:flex;gap:8px}
+.btn{
+  background:var(--bg);border:1px solid var(--line);color:var(--text);
+  border-radius:8px;padding:7px 12px;cursor:pointer;font:500 12.5px/1 inherit;
+}
+.btn:hover{border-color:var(--muted)}
+.manual{margin-top:16px;display:none}
+.manual.open{display:block}
+.manual p{margin:0 0 10px;font-size:12.5px;color:var(--muted)}
+.mrow{display:flex;align-items:center;gap:10px;margin-bottom:8px;font-size:13.5px}
+.mrow label{width:100px;color:var(--muted)}
+.mrow input{
+  flex:1;max-width:140px;background:var(--bg);border:1px solid var(--line);
+  border-radius:8px;color:var(--text);padding:7px 10px;
+  font:400 14px/1 inherit;font-variant-numeric:tabular-nums;
+}
+.mrow input:focus{outline:none;border-color:var(--accent)}
+
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Currency</h1>
+
+  <section class="conv" aria-label="Currency converter">
+    <input class="amt" id="inA" inputmode="decimal" value="100" aria-label="Amount to convert">
+    <div class="pick"><select id="curA" aria-label="Convert from"></select></div>
+    <button class="swap" id="swap" title="Swap currencies" aria-label="Swap currencies">⇄</button>
+    <input class="amt" id="inB" inputmode="decimal" value="" aria-label="Converted amount">
+    <div class="pick"><select id="curB" aria-label="Convert to"></select></div>
+  </section>
+
+  <div class="tabs" role="tablist" aria-label="Currency">
+    <button class="tab" role="tab" data-cur="ISK" aria-selected="false">ISK</button>
+    <button class="tab" role="tab" data-cur="DKK" aria-selected="false">DKK</button>
+    <button class="tab" role="tab" data-cur="EUR" aria-selected="false">EUR</button>
+  </div>
+
+  <div class="grids">
+    <div class="card">
+      <h2 id="hFwd">USD → ISK</h2>
+      <table><tbody id="tbFwd"></tbody></table>
+    </div>
+    <div class="card">
+      <h2 id="hRev">ISK → USD</h2>
+      <table><tbody id="tbRev"></tbody></table>
+    </div>
+  </div>
+
+  <p class="tip"><em>In your head:</em> <span id="tipText"></span></p>
+
+  <footer>
+    <div class="foot-row">
+      <div class="src" id="srcLine">Loading rates…</div>
+      <div class="btns">
+        <button class="btn" id="refresh">Refresh</button>
+        <button class="btn" id="toggleManual">Set rates</button>
+      </div>
+    </div>
+    <div class="manual" id="manual">
+      <p>Enter what your card or the exchange desk actually gives you per US dollar. Clear a box to go back to the market rate.</p>
+      <div class="mrow"><label for="mISK">ISK per $1</label><input id="mISK" inputmode="decimal" placeholder="market"></div>
+      <div class="mrow"><label for="mDKK">DKK per $1</label><input id="mDKK" inputmode="decimal" placeholder="market"></div>
+      <div class="mrow"><label for="mEUR">EUR per $1</label><input id="mEUR" inputmode="decimal" placeholder="market"></div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- config ---------- */
+
+// Iceland stays on UTC all year (no daylight saving), so Icelandic time == UTC.
+// Aug 6 2026, 3:00 PM Icelandic time:
+var SWITCH_AT = Date.UTC(2026, 7, 6, 15, 0, 0);
+
+var NOTES = {
+  USD:[1,5,10,20,50,100,200,500],
+  ISK:[100,500,1000,2000,5000,10000,20000,50000],
+  DKK:[20,50,100,200,500,1000,2000,5000],
+  EUR:[1,5,10,20,50,100,200,500]
+};
+
+// Fallback rates (units per $1) — used only if every live source fails.
+var FALLBACK = { USD:1, ISK:124.40, DKK:6.4869, EUR:0.8696 };
+var FALLBACK_DATE = "2026-07-30";
+
+/* ---------- state ---------- */
+
+var rates  = Object.assign({}, FALLBACK);
+var manual = { ISK:null, DKK:null, EUR:null };
+var meta   = { src:"fallback", date:FALLBACK_DATE, live:false };
+var tab    = Date.now() < SWITCH_AT ? "ISK" : "DKK";
+var userPickedTab = false;
+
+var $ = function(id){ return document.getElementById(id); };
+
+/* ---------- helpers ---------- */
+
+function rate(code){
+  if(code === "USD") return 1;
+  if(manual[code]) return manual[code];
+  return rates[code];
+}
+function convert(v, from, to){ return v / rate(from) * rate(to); }
+
+function fmt(v, code){
+  if(!isFinite(v)) return "—";
+  var dp = code === "ISK" ? 0 : (Math.abs(v) < 100 ? 2 : 0);
+  return v.toLocaleString("en-US", { minimumFractionDigits:dp, maximumFractionDigits:dp });
+}
+function parseNum(s){
+  var n = parseFloat(String(s).replace(/[^0-9.\-]/g, ""));
+  return isFinite(n) ? n : NaN;
+}
+function trim1(n){ return n.toFixed(1).replace(/\.0$/, ""); }
+function group(n){ return n.toLocaleString("en-US"); }
+
+/* ---------- optional cache ---------- */
+
+function hasStore(){ return typeof window.storage === "object" && window.storage !== null; }
+
+async function saveCache(){
+  if(!hasStore()) return;
+  try{ await window.storage.set("fx-cache", JSON.stringify({rates:rates, meta:meta, manual:manual}), false); }
+  catch(e){}
+}
+async function loadCache(){
+  if(!hasStore()) return;
+  try{
+    var r = await window.storage.get("fx-cache", false);
+    if(!r || !r.value) return;
+    var o = JSON.parse(r.value);
+    if(o.rates) rates = o.rates;
+    if(o.meta) meta = o.meta;
+    if(o.manual) manual = o.manual;
+  }catch(e){}
+}
+
+/* ---------- rates ---------- */
+
+var SOURCES = [
+  { url:"https://api.frankfurter.dev/v1/latest?base=USD&symbols=ISK,DKK,EUR", label:"Frankfurter (ECB)",
+    read:function(j){ return j.rates ? { rates:j.rates, date:j.date } : null; } },
+  { url:"https://api.frankfurter.app/latest?from=USD&to=ISK,DKK,EUR", label:"Frankfurter (ECB)",
+    read:function(j){ return j.rates ? { rates:j.rates, date:j.date } : null; } },
+  { url:"https://open.er-api.com/v6/latest/USD", label:"exchangerate-api",
+    read:function(j){
+      if(!j.rates || !j.rates.ISK) return null;
+      return { rates:{ISK:j.rates.ISK, DKK:j.rates.DKK, EUR:j.rates.EUR},
+               date:((j.time_last_update_utc || "").slice(5,16) || "today").trim() };
+    } }
+];
+
+async function fetchRates(){
+  $("srcLine").textContent = "Checking rates…";
+  for(var i=0;i<SOURCES.length;i++){
+    var s = SOURCES[i];
+    try{
+      var res = await fetch(s.url, { cache:"no-store" });
+      if(!res.ok) continue;
+      var got = s.read(await res.json());
+      if(!got || !got.rates.ISK || !got.rates.DKK || !got.rates.EUR) continue;
+      rates = { USD:1, ISK:+got.rates.ISK, DKK:+got.rates.DKK, EUR:+got.rates.EUR };
+      meta = { src:s.label, date:got.date, live:true };
+      render(); saveCache();
+      return;
+    }catch(e){}
+  }
+  render();
+}
+
+/* ---------- render ---------- */
+
+function fillSelects(){
+  var opts = Object.keys(NOTES).map(function(c){ return '<option value="'+c+'">'+c+'</option>'; }).join("");
+  $("curA").innerHTML = opts; $("curA").value = "USD";
+  $("curB").innerHTML = opts; $("curB").value = tab;
+}
+
+function recompute(field){
+  var a = $("curA").value, b = $("curB").value;
+  if(field === "B"){
+    var vb = parseNum($("inB").value);
+    $("inA").value = isNaN(vb) ? "" : fmt(convert(vb, b, a), a);
+  }else{
+    var va = parseNum($("inA").value);
+    $("inB").value = isNaN(va) ? "" : fmt(convert(va, a, b), b);
+  }
+}
+
+function renderTables(){
+  var fwd = "", rev = "";
+  NOTES.USD.forEach(function(n){
+    fwd += "<tr><td class='k'>$" + group(n) + "</td><td class='v'>"
+        +  fmt(convert(n,"USD",tab), tab) + "<span class='unit'>" + tab + "</span></td></tr>";
+  });
+  NOTES[tab].forEach(function(n){
+    rev += "<tr><td class='k'>" + group(n) + "<span class='unit'>" + tab
+        +  "</span></td><td class='v'>$" + fmt(convert(n,tab,"USD"), "USD") + "</td></tr>";
+  });
+  $("tbFwd").innerHTML = fwd;
+  $("tbRev").innerHTML = rev;
+  $("hFwd").textContent = "USD → " + tab;
+  $("hRev").textContent = tab + " → USD";
+}
+
+function renderTip(){
+  var r = rate(tab), t;
+  if(tab === "ISK"){
+    var m = +trim1(1000 / r);
+    t = "knock <b>three zeros</b> off, then multiply by <b>" + m + "</b>. "
+      + "5,000 ISK → 5 → about $" + (5*m).toFixed(0) + ".";
+  }else if(tab === "DKK"){
+    var m2 = +trim1(10 / r);
+    t = "multiply by <b>" + m2 + "</b>, then knock <b>one zero</b> off. "
+      + "100 DKK → " + group(+(100*m2).toFixed(0)) + " → about $" + (10*m2).toFixed(0) + ".";
+  }else{
+    var pct = Math.round((1/r - 1) * 100);
+    t = "add about <b>" + pct + "%</b>. 20 EUR → about $" + (20*(1+pct/100)).toFixed(0) + ".";
+  }
+  $("tipText").innerHTML = t;
+}
+
+function renderTabs(){
+  [].forEach.call(document.querySelectorAll(".tab"), function(b){
+    b.setAttribute("aria-selected", b.dataset.cur === tab ? "true" : "false");
+  });
+}
+
+function ageSuffix(){
+  var t = Date.parse(meta.date);
+  if(!isFinite(t)) return "";
+  var days = Math.floor((Date.now() - t) / 86400000);
+  return days < 1 ? "" : " (" + days + " day" + (days === 1 ? "" : "s") + " old)";
+}
+
+function renderRate(){
+  var r = rate(tab), isManual = !!manual[tab];
+  var head = "$1 = " + r.toLocaleString("en-US",{maximumFractionDigits:4}) + " " + tab + " · ";
+  $("srcLine").textContent = head + (isManual ? "your rate"
+    : meta.live ? meta.src + " · " + meta.date
+    : "offline, saved " + meta.date + ageSuffix());
+}
+
+function render(){ renderTabs(); renderTables(); renderTip(); renderRate(); recompute("A"); }
+
+function setTab(code, byUser){
+  tab = code;
+  if(byUser) userPickedTab = true;
+  if($("curA").value === "USD") $("curB").value = tab;
+  render();
+}
+
+/* ---------- wiring ---------- */
+
+fillSelects();
+
+$("inA").addEventListener("input", function(){ recompute("A"); });
+$("inB").addEventListener("input", function(){ recompute("B"); });
+$("inA").addEventListener("focus", function(){ this.select(); });
+$("inB").addEventListener("focus", function(){ this.select(); });
+$("curA").addEventListener("change", function(){ recompute("A"); });
+$("curB").addEventListener("change", function(){ recompute("A"); });
+
+$("swap").addEventListener("click", function(){
+  var a = $("curA").value;
+  $("curA").value = $("curB").value;
+  $("curB").value = a;
+  $("inA").value = $("inB").value;
+  recompute("A");
+});
+
+[].forEach.call(document.querySelectorAll(".tab"), function(b){
+  b.addEventListener("click", function(){ setTab(b.dataset.cur, true); });
+});
+
+$("refresh").addEventListener("click", fetchRates);
+
+$("toggleManual").addEventListener("click", function(){
+  this.textContent = $("manual").classList.toggle("open") ? "Done" : "Set rates";
+});
+
+["ISK","DKK","EUR"].forEach(function(c){
+  $("m"+c).addEventListener("input", function(){
+    var v = parseNum(this.value);
+    manual[c] = (this.value.trim() && isFinite(v) && v > 0) ? v : null;
+    render(); saveCache();
+  });
+});
+
+// Re-check the clock on return to foreground, so the tab flips on Aug 6 without a reload.
+document.addEventListener("visibilitychange", function(){
+  if(document.visibilityState !== "visible") return;
+  if(!userPickedTab){
+    var auto = Date.now() < SWITCH_AT ? "ISK" : "DKK";
+    if(auto !== tab) setTab(auto, false);
+  }
+  if(!meta.live) fetchRates();
+});
+
+(async function start(){
+  await loadCache();
+  ["ISK","DKK","EUR"].forEach(function(c){ if(manual[c]) $("m"+c).value = manual[c]; });
+  render();
+  fetchRates();
+})();
+
+})();
+</script>
+</body>
+</html>
